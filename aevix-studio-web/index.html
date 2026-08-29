@@ -8,7 +8,6 @@
 </head>
 <body>
 
-    <!-- Header Navigation -->
     <header>
         <div class="brand"><a href="/" style="text-decoration:none; color:inherit;">AEVIX STUDIO</a></div>
         <nav>
@@ -19,9 +18,7 @@
         </nav>
     </header>
 
-    <!-- Hero Section -->
     <section class="hero" id="hero">
-        <!-- Logo Image -->
         <img src="logo.png" alt="Aevix Studio Logo" class="hero-bg-logo" id="hero-logo">
 
         <h1>Crafting Digital Experiences That Scale</h1>
@@ -29,7 +26,6 @@
         <a href="#contact" class="cta-btn">Get Started</a>
     </section>
 
-    <!-- Services Section -->
     <section id="services" class="section-container">
         <h2>Our Services</h2>
         <div class="grid">
@@ -56,7 +52,6 @@
         </div>
     </section>
 
-    <!-- Portfolio Section -->
     <section id="portfolio" class="section-container">
         <h2>Selected Work</h2>
         <p class="section-lead">Explore our latest productions, custom builds, and creative executions.</p>
@@ -72,7 +67,6 @@
         </div>
     </section>
 
-    <!-- Contact Form Section -->
     <section id="contact" class="section-container">
         <h2>Start Your Project</h2>
         <p class="section-lead">Fill out the brief below or reach out directly—our team will respond within 48 hours.</p>
@@ -94,77 +88,4 @@
                 <textarea id="message" name="message" rows="5" placeholder="Tell us about your project scope, timeline, and budget..." required></textarea>
             </div>
 
-            <!-- Mandatory Acceptance Checkbox -->
-            <div style="display: flex; align-items: flex-start; gap: 10px; margin: 1.5rem 0; font-size: 0.9rem; color: #9ca3af;">
-                <input type="checkbox" id="terms" name="terms_agreed" value="agreed" required style="width: 18px; height: 18px; margin-top: 2px; cursor: pointer; accent-color: #3b82f6;">
-                <label for="terms" style="cursor: pointer; line-height: 1.4;">
-                    I have read and agree to the <a href="/terms" target="_blank" style="color: #60a5fa; text-decoration: underline;">Terms & Policies</a>.
-                </label>
-            </div>
-
-            <!-- Enhanced Submit Button -->
-            <button type="submit" id="submit-btn" class="submit-btn" disabled>Send Message</button>
-        </form>
-    </section>
-
-    <!-- Footer -->
-    <footer>
-        <p style="color: #9ca3af; margin-bottom: 0.5rem;">
-            Direct Email: <a href="mailto:aevixstudio961@gmail.com"><strong>aevixstudio961@gmail.com</strong></a> | 
-            Instagram: <a href="https://www.instagram.com/aevixstudio?utm_source=ig_web_button_share_sheet&igsi=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer"><strong>@aevixstudio</strong></a>
-        </p>
-        <div class="copyright">
-            &copy; 2026 Aevix Studio. All Rights Reserved. | <a href="/terms">Terms & Policies</a>
-        </div>
-    </footer>
-
-    <!-- Interactive Scripts -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Checkbox submit enable logic
-            const termsCheckbox = document.getElementById('terms');
-            const submitBtn = document.getElementById('submit-btn');
-
-            if (termsCheckbox && submitBtn) {
-                submitBtn.disabled = !termsCheckbox.checked;
-                termsCheckbox.addEventListener('change', function() {
-                    submitBtn.disabled = !this.checked;
-                });
-            }
-
-            // Hero Logo Slide, Fade & Background Color Darkening Scroll Animation
-            const heroSection = document.getElementById('hero');
-            const heroLogo = document.getElementById('hero-logo');
-
-            // RGB for #0d1a2d (Start) to #0b0f17 (End)
-            const startColor = { r: 13, g: 26, b: 45 };
-            const endColor = { r: 11, g: 15, b: 23 };
-
-            window.addEventListener('scroll', () => {
-                const scrollPosition = window.scrollY;
-                const heroHeight = heroSection.offsetHeight;
-
-                if (scrollPosition <= heroHeight) {
-                    const progress = Math.min(scrollPosition / heroHeight, 1);
-                    
-                    // Logo animations: slides up, scales slightly, fades to 0
-                    const translateY = -50 - (progress * 80);
-                    const scale = 1 - (progress * 0.15);
-                    const opacity = Math.max(0, 0.35 * (1 - progress * 1.6));
-                    
-                    heroLogo.style.transform = `translate(-50%, ${translateY}%) scale(${scale})`;
-                    heroLogo.style.opacity = opacity;
-
-                    // Interpolate background color smoothly from Navy to Dark Gray/Black
-                    const r = Math.round(startColor.r + (endColor.r - startColor.r) * progress);
-                    const g = Math.round(startColor.g + (endColor.g - startColor.g) * progress);
-                    const b = Math.round(startColor.b + (endColor.b - startColor.b) * progress);
-
-                    heroSection.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
-                }
-            });
-        });
-    </script>
-
-</body>
-</html>
+            <div style
