@@ -45,6 +45,28 @@
             transform: none;
             filter: grayscale(100%);
         }
+
+        /* Social Reachout Links Styling */
+        .contact-methods {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+            color: #9ca3af;
+        }
+
+        .contact-link {
+            color: #60a5fa;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .contact-link:hover {
+            color: #93c5fd;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -63,7 +85,7 @@
     <!-- Hero Section -->
     <section class="hero">
         <h1>Crafting Digital Experiences That Scale</h1>
-        <p>Aevix Studio delivers high-performance web development, visual design, and digital media assets for global brands.</p>
+        <p>Aevix Studio delivers high-performance web development, creative direction, social media management, and digital media assets for global brands.</p>
         <a href="#contact" class="cta-btn">Get Started</a>
     </section>
 
@@ -72,12 +94,20 @@
         <h2>Our Services</h2>
         <div class="grid">
             <div class="card">
+                <h3>Creative Direction</h3>
+                <p>Strategic brand positioning, visual storytelling, and comprehensive art direction to build brands that stand out.</p>
+            </div>
+            <div class="card">
+                <h3>Social Media Management</h3>
+                <p>End-to-end strategy, content curation, profile optimization (SMM), and audience engagement strategies.</p>
+            </div>
+            <div class="card">
                 <h3>Web Development</h3>
                 <p>High-performance, responsive websites built with modern frameworks and robust security protocols.</p>
             </div>
             <div class="card">
                 <h3>Visual & Media Design</h3>
-                <p>Industry-standard post-production, motion graphics, and tailored brand asset generation.</p>
+                <p>Industry-standard video editing, photo editing, motion graphics, and tailored brand asset generation.</p>
             </div>
             <div class="card">
                 <h3>Digital Solutions</h3>
@@ -105,7 +135,14 @@
     <!-- Contact Form Section -->
     <section id="contact" class="section-container">
         <h2>Start Your Project</h2>
-        <p class="section-lead">Fill out the brief below and our team will respond within 48 hours.</p>
+        <p class="section-lead">Fill out the brief below or reach out directly—our team will respond within 48 hours.</p>
+
+        <!-- Reach Out Methods -->
+        <div class="contact-methods">
+            <span>Email: <a href="mailto:aevixstudio961@gmail.com" class="contact-link"><strong>aevixstudio961@gmail.com</strong></a></span>
+            <span>|</span>
+            <span>Instagram: <a href="https://www.instagram.com/aevixstudio?utm_source=ig_web_button_share_sheet&igsi=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer" class="contact-link"><strong>@aevixstudio</strong></a></span>
+        </div>
 
         <form action="https://formspree.io/f/xrpggwre" method="POST" id="contact-form">
             
@@ -139,7 +176,10 @@
 
     <!-- Footer -->
     <footer>
-        <p style="color: #9ca3af; margin-bottom: 0.5rem;">Direct Email: <strong>aevixstudio961@gmail.com</strong></p>
+        <p style="color: #9ca3af; margin-bottom: 0.5rem;">
+            Direct Email: <a href="mailto:aevixstudio961@gmail.com" style="color: #60a5fa; text-decoration: none;"><strong>aevixstudio961@gmail.com</strong></a> | 
+            Instagram: <a href="https://www.instagram.com/aevixstudio?utm_source=ig_web_button_share_sheet&igsi=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer" style="color: #60a5fa; text-decoration: none;"><strong>@aevixstudio</strong></a>
+        </p>
         <div class="copyright">
             &copy; 2026 Aevix Studio. All Rights Reserved. | <a href="/terms" style="color: #9ca3af;">Terms & Policies</a>
         </div>
