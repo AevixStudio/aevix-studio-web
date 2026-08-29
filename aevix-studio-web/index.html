@@ -3,88 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aevix Studio | Digital Media & Web Agency</title>
+    <title>Aevix Studio | Digital Media & Development Agency</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Interactive button lock styling */
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            filter: grayscale(100%);
+        }
+    </style>
 </head>
 <body>
 
+    <!-- Header Navigation -->
     <header>
         <div class="brand"><a href="/" style="text-decoration:none; color:inherit;">AEVIX STUDIO</a></div>
         <nav>
             <a href="#services">Services</a>
             <a href="#portfolio">Work</a>
-            <a href="/terms">Terms</a>
+            <a href="/terms">Terms & Policies</a>
             <a href="#contact" class="nav-cta">Start Project</a>
         </nav>
     </header>
 
+    <!-- Hero Section -->
     <section class="hero">
-        <div class="badge">Cross-Border Media & Development</div>
-        <h1>High-Impact Digital Assets Built for Growth.</h1>
-        <p>Premium post-production video editing, modern web development, and visual brand identity for scaling businesses worldwide.</p>
+        <h1>Crafting Digital Experiences That Scale</h1>
+        <p>Aevix Studio delivers high-performance web development, visual design, and digital media assets for global brands.</p>
+        <a href="#contact" class="cta-btn">Get Started</a>
     </section>
 
+    <!-- Services Section -->
     <section id="services" class="section-container">
-        <h2>Core Capabilities</h2>
+        <h2>Our Services</h2>
         <div class="grid">
             <div class="card">
-                <h3>Video Post-Production</h3>
-                <p>High-converting social edits, brand promos, motion graphics, and audio mastering.</p>
+                <h3>Web Development</h3>
+                <p>High-performance, responsive websites built with modern frameworks and robust security protocols.</p>
             </div>
             <div class="card">
-                <h3>Web Engineering</h3>
-                <p>Ultra-fast static websites optimized for global deployment, security, and performance.</p>
+                <h3>Visual & Media Design</h3>
+                <p>Industry-standard post-production, motion graphics, and tailored brand asset generation.</p>
             </div>
             <div class="card">
-                <h3>Visual Design</h3>
-                <p>Custom graphic assets, social templates, and complete visual identity packages.</p>
+                <h3>Digital Solutions</h3>
+                <p>End-to-end technical consulting, infrastructure management, and performance optimization.</p>
             </div>
         </div>
     </section>
 
+    <!-- Portfolio Section -->
     <section id="portfolio" class="section-container">
-        <h2>Selected Works</h2>
+        <h2>Selected Work</h2>
+        <p class="section-lead">Explore our latest productions, custom builds, and creative executions.</p>
         <div class="grid">
             <div class="card">
-                <h3>Commercial Reel</h3>
-                <p>High-pace promotional edit with custom typography, sound design, and color grading.</p>
+                <h3>Web Platforms</h3>
+                <p>Custom web deployments built for performance, security, and global delivery.</p>
             </div>
             <div class="card">
-                <h3>SaaS Web Platform</h3>
-                <p>High-performance static landing page with 100/100 Lighthouse speed scores.</p>
-            </div>
-            <div class="card">
-                <h3>Brand Identity System</h3>
-                <p>Complete logo package, asset toolkit, and visual guidelines for digital campaigns.</p>
+                <h3>Media Editing</h3>
+                <p>Precision video post-production, motion assets, and high-end visual design.</p>
             </div>
         </div>
     </section>
 
+    <!-- Contact Form Section -->
     <section id="contact" class="section-container">
-        <h2>Start a Project</h2>
-        <div class="contact-card">
-            <form action="https://formspree.io/f/xrpggwre" method="POST" class="contact-form">
-                <div class="form-group">
-                    <input type="text" name="name" placeholder="Your Name or Company" required>
-                </div>
-                <div class="form-group">
-                    <input type="email" name="email" placeholder="Your Business Email" required>
-                </div>
-                <div class="form-group">
-                    <textarea name="message" rows="5" placeholder="Project Details, Scope, and Timeline..." required></textarea>
-                </div>
-                <input type="hidden" name="_subject" value="New Client Inquiry | Aevix Studio">
-                <button type="submit" class="btn-submit">Submit Inquiry</button>
-            </form>
-        </div>
+        <h2>Start Your Project</h2>
+        <p class="section-lead">Fill out the brief below and our team will respond within 48 hours.</p>
+
+        <form action="https://formspree.io/f/xrpggwre" method="POST" id="contact-form">
+            
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" placeholder="Your Name or Business" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="your@email.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="message">Project Details</label>
+                <textarea id="message" name="message" rows="5" placeholder="Tell us about your project scope, timeline, and budget..." required></textarea>
+            </div>
+
+            <!-- Mandatory Acceptance Checkbox -->
+            <div style="display: flex; align-items: flex-start; gap: 10px; margin: 1.5rem 0; font-size: 0.9rem; color: #9ca3af;">
+                <input type="checkbox" id="terms" name="terms_agreed" required style="width: 18px; height: 18px; margin-top: 2px; cursor: pointer; accent-color: #3b82f6;">
+                <label for="terms" style="cursor: pointer; line-height: 1.4;">
+                    I have read and agree to the <a href="/terms" target="_blank" style="color: #60a5fa; text-decoration: underline;">Terms & Policies</a>.
+                </label>
+            </div>
+
+            <!-- Submit Button (Locked until checked) -->
+            <button type="submit" id="submit-btn" class="submit-btn" disabled>Send Message</button>
+        </form>
     </section>
 
+    <!-- Footer -->
     <footer>
         <p style="color: #9ca3af; margin-bottom: 0.5rem;">Direct Email: <strong>aevixstudio961@gmail.com</strong></p>
         <div class="copyright">
-            &copy; 2026 Aevix Studio. All Rights Reserved.
+            &copy; 2026 Aevix Studio. All Rights Reserved. | <a href="/terms" style="color: #9ca3af;">Terms & Policies</a>
         </div>
     </footer>
+
+    <!-- Interactive Button Lock Script -->
+    <script>
+        const termsCheckbox = document.getElementById('terms');
+        const submitBtn = document.getElementById('submit-btn');
+
+        termsCheckbox.addEventListener('change', function() {
+            submitBtn.disabled = !this.checked;
+        });
+    </script>
 
 </body>
 </html>
