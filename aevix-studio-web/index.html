@@ -9,10 +9,11 @@
 <body>
 
     <header>
-        <div class="brand">AEVIX STUDIO</div>
+        <div class="brand"><a href="/" style="text-decoration:none; color:inherit;">AEVIX STUDIO</a></div>
         <nav>
             <a href="#services">Services</a>
-            <a href="#terms">Terms</a>
+            <a href="#portfolio">Work</a>
+            <a href="/terms">Terms</a>
             <a href="#contact" class="nav-cta">Start Project</a>
         </nav>
     </header>
@@ -21,10 +22,6 @@
         <div class="badge">Cross-Border Media & Development</div>
         <h1>High-Impact Digital Assets Built for Growth.</h1>
         <p>Premium post-production video editing, modern web development, and visual brand identity for scaling businesses worldwide.</p>
-        <div class="hero-actions">
-            <a href="#contact" class="btn-primary">Get a Quote</a>
-            <a href="#terms" class="btn-secondary">View Terms</a>
-        </div>
     </section>
 
     <section id="services" class="section-container">
@@ -45,36 +42,45 @@
         </div>
     </section>
 
-    <section id="terms" class="section-container terms-wrapper">
-        <h2>Master Terms of Service</h2>
-        <p class="section-lead">By initiating projects, paying deposits, or receiving deliverables from Aevix Studio, clients agree to these terms.</p>
-        
-        <div class="terms-card">
-            <div class="term-block">
-                <h4>1. Digital Execution & Payment Terms</h4>
-                <p>Digital engagement or deposit payments constitute full legal acceptance under UNCITRAL Model Law and ICT Act standards. A non-refundable <strong>35% advance deposit</strong> is required prior to kickoff, with the remaining <strong>65% balance due</strong> prior to final unwatermarked file release. Payments must be grossed-up so net receipt equals 100% of the invoiced total.</p>
+    <section id="portfolio" class="section-container">
+        <h2>Selected Works</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>Commercial Reel</h3>
+                <p>High-pace promotional edit with custom typography, sound design, and color grading.</p>
             </div>
-
-            <div class="term-block">
-                <h4>2. Zero-Cancellation & Scope Policy</h4>
-                <p>Once work commences, contracts cannot be cancelled mid-project, and the full contract value remains strictly due. Projects include up to two (2) rounds of scope revisions. Delays caused by client unresponsiveness exceeding 14 calendar days will place projects on administrative pause.</p>
+            <div class="card">
+                <h3>SaaS Web Platform</h3>
+                <p>High-performance static landing page with 100/100 Lighthouse speed scores.</p>
             </div>
-
-            <div class="term-block">
-                <h4>3. IP Rights & Liability Cap</h4>
-                <p>Full commercial copyright transfers to the client <em>only</em> upon 100% invoice settlement. Project source files remain studio property. Financial liability for any dispute is strictly capped at the total funds paid to Aevix Studio for the specific service in question.</p>
-            </div>
-
-            <div class="term-block">
-                <h4>4. Governing Law & UNCITRAL Arbitration</h4>
-                <p>Governed strictly by the laws of the People's Republic of Bangladesh. All cross-border disputes shall be resolved exclusively via binding private arbitration under UNCITRAL Rules in Dhaka, Bangladesh, conducted in English and globally enforceable under the 1958 New York Convention.</p>
+            <div class="card">
+                <h3>Brand Identity System</h3>
+                <p>Complete logo package, asset toolkit, and visual guidelines for digital campaigns.</p>
             </div>
         </div>
     </section>
 
-    <footer id="contact">
-        <h2>Initiate a Production</h2>
-        <p>Email: <strong>contact@aevixstudio.com</strong></p>
+    <section id="contact" class="section-container">
+        <h2>Start a Project</h2>
+        <div class="contact-card">
+            <form action="https://formspree.io/f/xrpggwre" method="POST" class="contact-form">
+                <div class="form-group">
+                    <input type="text" name="name" placeholder="Your Name or Company" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" name="email" placeholder="Your Business Email" required>
+                </div>
+                <div class="form-group">
+                    <textarea name="message" rows="5" placeholder="Project Details, Scope, and Timeline..." required></textarea>
+                </div>
+                <input type="hidden" name="_subject" value="New Client Inquiry | Aevix Studio">
+                <button type="submit" class="btn-submit">Submit Inquiry</button>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <p style="color: #9ca3af; margin-bottom: 0.5rem;">Direct Email: <strong>aevixstudio961@gmail.com</strong></p>
         <div class="copyright">
             &copy; 2026 Aevix Studio. All Rights Reserved.
         </div>
