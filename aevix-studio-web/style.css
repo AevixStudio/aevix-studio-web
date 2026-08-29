@@ -131,16 +131,15 @@ nav .nav-cta:hover {
     box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
 }
 
-/* Animated Centerpiece Logo */
 /* Animated Centerpiece Logo (Upscaled Watermark) */
 .hero-bg-logo {
     position: absolute;
-    top: 48%;
+    top: 58%;                /* Shifted down from 48% to clear the button */
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 650px;           /* Increased size so it extends below 'Get Started' */
-    max-width: 90vw;        /* Keeps it responsive on mobile screens */
-    opacity: 0.18;          /* Clean watermark opacity for seamless background text readably */
+    width: 650px;
+    max-width: 90vw;
+    opacity: 0.22;           /* Slight boost so the text mark pops cleanly */
     pointer-events: none;
     z-index: 1;
     will-change: transform, opacity;
