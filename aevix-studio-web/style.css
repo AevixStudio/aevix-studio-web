@@ -1,11 +1,11 @@
 :root {
-    --bg-main: #0a0f1d;
-    --bg-card: #151c2e;
-    --accent: #0284c7;
-    --accent-hover: #0369a1;
-    --text-bright: #f8fafc;
-    --text-muted: #94a3b8;
-    --border-color: #1e293b;
+    --bg-main: #030712;
+    --bg-card: rgba(17, 24, 39, 0.7);
+    --accent: #38bdf8;
+    --accent-glow: rgba(56, 189, 248, 0.25);
+    --text-bright: #f9fafb;
+    --text-muted: #9ca3af;
+    --border-glass: rgba(255, 255, 255, 0.08);
 }
 
 * {
@@ -19,26 +19,32 @@ body {
     background-color: var(--bg-main);
     color: var(--text-bright);
     line-height: 1.6;
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.12) 0px, transparent 50%);
+    background-attachment: fixed;
 }
 
-/* Header Navigation */
 header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem 8%;
-    background: rgba(10, 15, 29, 0.95);
+    padding: 1.25rem 8%;
+    background: rgba(3, 7, 18, 0.8);
+    backdrop-filter: blur(12px);
     position: sticky;
     top: 0;
     z-index: 100;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-glass);
 }
 
 .brand {
     font-weight: 800;
     font-size: 1.25rem;
     letter-spacing: 2px;
-    color: var(--accent);
+    background: linear-gradient(135deg, #38bdf8, #818cf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 nav a {
@@ -54,96 +60,52 @@ nav a:hover {
 }
 
 .nav-cta {
-    background: var(--accent);
+    background: linear-gradient(135deg, #0284c7, #4f46e5);
     color: #fff !important;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
     font-weight: 600;
+    box-shadow: 0 0 15px var(--accent-glow);
 }
 
-/* Hero Section */
 .hero {
     text-align: center;
-    padding: 6rem 1rem;
+    padding: 7rem 1rem 5rem 1rem;
     max-width: 900px;
     margin: 0 auto;
 }
 
 .badge {
     display: inline-block;
-    padding: 0.25rem 0.75rem;
-    background: rgba(2, 132, 199, 0.1);
+    padding: 0.35rem 0.9rem;
+    background: rgba(56, 189, 248, 0.1);
     color: var(--accent);
     border-radius: 50px;
     font-size: 0.85rem;
     font-weight: 600;
     margin-bottom: 1.5rem;
-    border: 1px solid rgba(2, 132, 199, 0.3);
+    border: 1px solid rgba(56, 189, 248, 0.2);
 }
 
 .hero h1 {
-    font-size: 3rem;
+    font-size: 3.2rem;
     line-height: 1.2;
     margin-bottom: 1rem;
+    letter-spacing: -0.02em;
 }
 
 .hero p {
     color: var(--text-muted);
-    font-size: 1.15rem;
-    margin-bottom: 2rem;
+    font-size: 1.2rem;
+    margin-bottom: 2.5rem;
 }
 
-.hero-actions {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-}
-
-.btn-primary, .btn-secondary {
-    padding: 0.75rem 1.5rem;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: 0.2s;
-}
-
-.btn-primary {
-    background: var(--accent);
-    color: #fff;
-}
-
-.btn-primary:hover {
-    background: var(--accent-hover);
-}
-
-.btn-secondary {
-    background: transparent;
-    color: var(--text-bright);
-    border: 1px solid var(--border-color);
-}
-
-.btn-secondary:hover {
-    border-color: var(--text-muted);
-}
-
-/* Layout Containers */
 .section-container {
     padding: 5rem 8%;
     max-width: 1200px;
     margin: 0 auto;
 }
 
-.section-container h2 {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-}
-
-.section-lead {
-    color: var(--text-muted);
-    margin-bottom: 2rem;
-}
-
-/* Cards Grid */
 .grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -151,11 +113,20 @@ nav a:hover {
     margin-top: 2rem;
 }
 
-.card {
+/* Glassmorphism Cards */
+.card, .terms-card, .contact-card {
     background: var(--bg-card);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     padding: 2rem;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    border: 1px solid var(--border-glass);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(56, 189, 248, 0.4);
 }
 
 .card h3 {
@@ -165,21 +136,13 @@ nav a:hover {
 
 .card p {
     color: var(--text-muted);
-    font-size: 0.95rem;
 }
 
-/* Terms Block */
-.terms-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 2.5rem;
-}
-
+/* Terms Styling */
 .term-block {
     margin-bottom: 1.5rem;
     padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-glass);
 }
 
 .term-block:last-child {
@@ -190,8 +153,7 @@ nav a:hover {
 
 .term-block h4 {
     color: var(--text-bright);
-    font-size: 1.1rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.4rem;
 }
 
 .term-block p {
@@ -199,24 +161,53 @@ nav a:hover {
     font-size: 0.95rem;
 }
 
-/* Footer */
+/* Form Styles */
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    margin-top: 1.5rem;
+}
+
+.form-group input, .form-group textarea {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    background: rgba(3, 7, 18, 0.6);
+    border: 1px solid var(--border-glass);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.95rem;
+    outline: none;
+}
+
+.form-group input:focus, .form-group textarea:focus {
+    border-color: var(--accent);
+}
+
+.btn-submit {
+    background: linear-gradient(135deg, #0284c7, #4f46e5);
+    color: #fff;
+    padding: 0.9rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-submit:hover {
+    opacity: 0.9;
+}
+
 footer {
     text-align: center;
     padding: 4rem 1rem 2rem 1rem;
-    border-top: 1px solid var(--border-color);
-    background: #070b14;
-}
-
-footer h2 {
-    margin-bottom: 0.5rem;
-}
-
-footer p {
-    color: var(--text-muted);
+    border-top: 1px solid var(--border-glass);
+    background: rgba(3, 7, 18, 0.95);
 }
 
 .copyright {
-    margin-top: 3rem;
-    color: #475569;
+    margin-top: 2rem;
+    color: #4b5563;
     font-size: 0.85rem;
 }
