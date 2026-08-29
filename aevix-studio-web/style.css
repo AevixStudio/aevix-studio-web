@@ -74,13 +74,11 @@ nav .nav-cta:hover {
     align-items: center;
     text-align: center;
     padding: 4rem 1rem;
-
-    /* Base color matching the logo image background (#0d1a2d) */
     background-color: #0d1a2d;
     transition: background-color 0.1s linear;
 }
 
-/* Smooth gradient overlay blending into body background */
+/* Gradient overlay blending hero bottom into page content */
 .hero::after {
     content: '';
     position: absolute;
@@ -131,15 +129,15 @@ nav .nav-cta:hover {
     box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
 }
 
-/* Animated Centerpiece Logo (Upscaled Watermark) */
+/* Animated Upscaled Centerpiece Logo */
 .hero-bg-logo {
     position: absolute;
-    top: 58%;                /* Shifted down from 48% to clear the button */
+    top: 58%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 650px;
     max-width: 90vw;
-    opacity: 0.22;           /* Slight boost so the text mark pops cleanly */
+    opacity: 0.22;
     pointer-events: none;
     z-index: 1;
     will-change: transform, opacity;
