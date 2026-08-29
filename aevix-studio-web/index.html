@@ -6,9 +6,43 @@
     <title>Aevix Studio | Digital Media & Development Agency</title>
     <link rel="stylesheet" href="style.css">
     <style>
+        /* Premium Modern Submit Button Styling */
+        .submit-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 0.85rem 2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px 0 rgba(59, 130, 246, 0.55);
+        }
+
+        .submit-btn:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px 0 rgba(59, 130, 246, 0.4);
+        }
+
+        /* Disabled State (Locked until checkbox checked) */
         .submit-btn:disabled {
-            opacity: 0.5;
+            background: #374151;
+            color: #9ca3af;
             cursor: not-allowed;
+            opacity: 0.65;
+            box-shadow: none;
+            transform: none;
             filter: grayscale(100%);
         }
     </style>
@@ -98,7 +132,7 @@
                 </label>
             </div>
 
-            <!-- Submit Button (Locked until checked) -->
+            <!-- Enhanced Submit Button -->
             <button type="submit" id="submit-btn" class="submit-btn" disabled>Send Message</button>
         </form>
     </section>
@@ -118,7 +152,6 @@
             const submitBtn = document.getElementById('submit-btn');
 
             if (termsCheckbox && submitBtn) {
-                // Set initial state based on checkbox state
                 submitBtn.disabled = !termsCheckbox.checked;
 
                 termsCheckbox.addEventListener('change', function() {
