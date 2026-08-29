@@ -5,69 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aevix Studio | Digital Media & Development Agency</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        /* Premium Modern Submit Button Styling */
-        .submit-btn {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            color: #ffffff;
-            font-weight: 600;
-            font-size: 1rem;
-            padding: 0.85rem 2rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .submit-btn:hover:not(:disabled) {
-            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px 0 rgba(59, 130, 246, 0.55);
-        }
-
-        .submit-btn:active:not(:disabled) {
-            transform: translateY(0);
-            box-shadow: 0 2px 8px 0 rgba(59, 130, 246, 0.4);
-        }
-
-        /* Disabled State (Locked until checkbox checked) */
-        .submit-btn:disabled {
-            background: #374151;
-            color: #9ca3af;
-            cursor: not-allowed;
-            opacity: 0.65;
-            box-shadow: none;
-            transform: none;
-            filter: grayscale(100%);
-        }
-
-        /* Social Reachout Links Styling */
-        .contact-methods {
-            display: flex;
-            gap: 1.5rem;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 2rem;
-            color: #9ca3af;
-        }
-
-        .contact-link {
-            color: #60a5fa;
-            text-decoration: none;
-            transition: color 0.2s ease;
-        }
-
-        .contact-link:hover {
-            color: #93c5fd;
-            text-decoration: underline;
-        }
-    </style>
 </head>
 <body>
 
@@ -83,7 +20,10 @@
     </header>
 
     <!-- Hero Section -->
-    <section class="hero">
+    <section class="hero" id="hero">
+        <!-- Watermark Logo Background -->
+        <img src="logo.png" alt="Aevix Studio Watermark" class="hero-bg-logo" id="hero-logo">
+
         <h1>Crafting Digital Experiences That Scale</h1>
         <p>Aevix Studio delivers high-performance web development, creative direction, social media management, and digital media assets for global brands.</p>
         <a href="#contact" class="cta-btn">Get Started</a>
@@ -137,7 +77,6 @@
         <h2>Start Your Project</h2>
         <p class="section-lead">Fill out the brief below or reach out directly—our team will respond within 48 hours.</p>
 
-        <!-- Reach Out Methods -->
         <form action="https://formspree.io/f/xrpggwre" method="POST" id="contact-form">
             
             <div class="form-group">
@@ -171,27 +110,45 @@
     <!-- Footer -->
     <footer>
         <p style="color: #9ca3af; margin-bottom: 0.5rem;">
-            Direct Email: <a href="mailto:aevixstudio961@gmail.com" style="color: #60a5fa; text-decoration: none;"><strong>aevixstudio961@gmail.com</strong></a> | 
-            Instagram: <a href="https://www.instagram.com/aevixstudio?utm_source=ig_web_button_share_sheet&igsi=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer" style="color: #60a5fa; text-decoration: none;"><strong>@aevixstudio</strong></a>
+            Direct Email: <a href="mailto:aevixstudio961@gmail.com"><strong>aevixstudio961@gmail.com</strong></a> | 
+            Instagram: <a href="https://www.instagram.com/aevixstudio?utm_source=ig_web_button_share_sheet&igsi=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer"><strong>@aevixstudio</strong></a>
         </p>
         <div class="copyright">
-            &copy; 2026 Aevix Studio. All Rights Reserved. | <a href="/terms" style="color: #9ca3af;">Terms & Policies</a>
+            &copy; 2026 Aevix Studio. All Rights Reserved. | <a href="/terms">Terms & Policies</a>
         </div>
     </footer>
 
-    <!-- Interactive Button Lock Script -->
+    <!-- Interactive Scripts -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Checkbox submit enable logic
             const termsCheckbox = document.getElementById('terms');
             const submitBtn = document.getElementById('submit-btn');
 
             if (termsCheckbox && submitBtn) {
                 submitBtn.disabled = !termsCheckbox.checked;
-
                 termsCheckbox.addEventListener('change', function() {
                     submitBtn.disabled = !this.checked;
                 });
             }
+
+            // Hero Logo Slide & Fade Scroll Animation
+            const heroSection = document.getElementById('hero');
+            const heroLogo = document.getElementById('hero-logo');
+
+            window.addEventListener('scroll', () => {
+                const scrollPosition = window.scrollY;
+                const heroHeight = heroSection.offsetHeight;
+
+                if (scrollPosition <= heroHeight) {
+                    const progress = scrollPosition / heroHeight;
+                    const translateY = -50 - (progress * 70);
+                    const opacity = Math.max(0, 0.15 * (1 - progress * 1.5));
+                    
+                    heroLogo.style.transform = `translate(-50%, ${translateY}%)`;
+                    heroLogo.style.opacity = opacity;
+                }
+            });
         });
     </script>
 
