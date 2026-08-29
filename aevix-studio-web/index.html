@@ -21,8 +21,8 @@
 
     <!-- Hero Section -->
     <section class="hero" id="hero">
-        <!-- Watermark Logo Background -->
-        <img src="logo.png" alt="Aevix Studio Watermark" class="hero-bg-logo" id="hero-logo">
+        <!-- Logo Image -->
+        <img src="logo.png" alt="Aevix Studio Logo" class="hero-bg-logo" id="hero-logo">
 
         <h1>Crafting Digital Experiences That Scale</h1>
         <p>Aevix Studio delivers high-performance web development, creative direction, social media management, and digital media assets for global brands.</p>
@@ -132,21 +132,35 @@
                 });
             }
 
-            // Hero Logo Slide & Fade Scroll Animation
+            // Hero Logo Slide, Fade & Background Color Darkening Scroll Animation
             const heroSection = document.getElementById('hero');
             const heroLogo = document.getElementById('hero-logo');
+
+            // RGB for #0d1a2d (Start) to #0b0f17 (End)
+            const startColor = { r: 13, g: 26, b: 45 };
+            const endColor = { r: 11, g: 15, b: 23 };
 
             window.addEventListener('scroll', () => {
                 const scrollPosition = window.scrollY;
                 const heroHeight = heroSection.offsetHeight;
 
                 if (scrollPosition <= heroHeight) {
-                    const progress = scrollPosition / heroHeight;
-                    const translateY = -50 - (progress * 70);
-                    const opacity = Math.max(0, 0.15 * (1 - progress * 1.5));
+                    const progress = Math.min(scrollPosition / heroHeight, 1);
                     
-                    heroLogo.style.transform = `translate(-50%, ${translateY}%)`;
+                    // Logo animations: slides up, scales slightly, fades to 0
+                    const translateY = -50 - (progress * 80);
+                    const scale = 1 - (progress * 0.15);
+                    const opacity = Math.max(0, 0.35 * (1 - progress * 1.6));
+                    
+                    heroLogo.style.transform = `translate(-50%, ${translateY}%) scale(${scale})`;
                     heroLogo.style.opacity = opacity;
+
+                    // Interpolate background color smoothly from Navy to Dark Gray/Black
+                    const r = Math.round(startColor.r + (endColor.r - startColor.r) * progress);
+                    const g = Math.round(startColor.g + (endColor.g - startColor.g) * progress);
+                    const b = Math.round(startColor.b + (endColor.b - startColor.b) * progress);
+
+                    heroSection.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
                 }
             });
         });
