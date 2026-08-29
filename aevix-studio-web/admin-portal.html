@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Admin Portal | Aevix Studio</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .admin-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .admin-table th, .admin-table td { padding: 12px; text-align: left; border-bottom: 1px solid #1f2937; }
+        .admin-table th { background: #111827; color: #9ca3af; }
+        .input-inline { background: #0b0f17; border: 1px solid #374151; color: #fff; padding: 6px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <section class="section-container" style="max-width: 1200px;">
+        <h2>Team Operations Workspace</h2>
+        <p class="section-lead">Manage ongoing projects, set milestones, track payments, and update progress.</p>
+
+        <div style="overflow-x: auto;">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Project</th>
+                        <th>Status</th>
+                        <th>Progress (%)</th>
+                        <th>Deadline</th>
+                        <th>Assigned To</th>
+                        <th>Price ($)</th>
+                        <th>Paid ($)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-project-list">
+                    <!-- Project rows injected dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <script>
+        const SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function fetchAllProjects() {
+            const { data: projects, error } = await supabase.from('projects').select('*');
+            if (error) return alert('Access Denied');
+
+            const tbody = document.getElementById('admin-project-list');
+            tbody.innerHTML = projects.map(p => `
+                <tr>
+                    <td><strong>${p.title}</strong></td>
+                    <td>
+                        <select class="input-inline" onchange="updateProject('${p.id}', 'status', this.value)">
+                            <option value="working" ${p.status === 'working' ? 'selected' : ''}>Working</option>
+                            <option value="delayed" ${p.status === 'delayed' ? 'selected' : ''}>Delayed</option>
+                            <option value="completed" ${p.status === 'completed' ? 'selected' : ''}>Completed</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" min="0" max="100" class="input-inline" style="width: 70px;" value="${p.progress}" onchange="updateProject('${p.id}', 'progress', parseInt(this.value))">
+                    </td>
+                    <td>
+                        <input type="date" class="input-inline" value="${p.deadline || ''}" onchange="updateProject('${p.id}', 'deadline', this.value)">
+                    </td>
+                    <td>
+                        <input type="text" class="input-inline" style="width: 110px;" value="${p.assigned_to || ''}" placeholder="Assignee" onchange="updateProject('${p.id}', 'assigned_to', this.value)">
+                    </td>
+                    <td>
+                        <input type="number" class="input-inline" style="width: 90px;" value="${p.total_price}" onchange="updateProject('${p.id}', 'total_price', parseFloat(this.value))">
+                    </td>
+                    <td>
+                        <input type="number" class="input-inline" style="width: 90px;" value="${p.fees_covered}" onchange="updateProject('${p.id}', 'fees_covered', parseFloat(this.value))">
+                    </td>
+                    <td>
+                        <button onclick="postUpdate('${p.id}')" style="background: #2563eb; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">+ Log</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function updateProject(id, field, value) {
+            const updates = {};
+            updates[field] = value;
+            await supabase.from('projects').update(updates).eq('id', id);
+        }
+
+        async function postUpdate(projectId) {
+            const logText = prompt("Enter progress note/update for client:");
+            if (logText) {
+                await supabase.from('activity_logs').insert([{ project_id: projectId, log_text: logText }]);
+                alert("Update posted to client timeline.");
+            }
+        }
+
+        fetchAllProjects();
+    </script>
+</body>
+</html>
