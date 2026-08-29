@@ -132,18 +132,18 @@ nav .nav-cta:hover {
 }
 
 /* Animated Centerpiece Logo */
+/* Animated Centerpiece Logo (Upscaled Watermark) */
 .hero-bg-logo {
     position: absolute;
-    top: 50%;
+    top: 48%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 380px;
-    max-width: 80%;
-    opacity: 0.35;
+    width: 650px;           /* Increased size so it extends below 'Get Started' */
+    max-width: 90vw;        /* Keeps it responsive on mobile screens */
+    opacity: 0.18;          /* Clean watermark opacity for seamless background text readably */
     pointer-events: none;
     z-index: 1;
-    will-change: transform, opacity, filter;
-    mix-blend-mode: lighten; /* Blends seamlessly with background */
+    will-change: transform, opacity;
 }
 
 /* Section Containers & Grids */
