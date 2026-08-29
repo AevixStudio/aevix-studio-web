@@ -91,7 +91,7 @@ nav .nav-cta:hover {
     z-index: 2;
 }
 
-.hero h1, .hero p, .hero .cta-btn {
+.hero h1, .hero p {
     position: relative;
     z-index: 3;
 }
@@ -113,20 +113,58 @@ nav .nav-cta:hover {
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
+/* Liquid / Water Refraction CTA Button */
 .hero .cta-btn {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    color: #ffffff;
+    position: relative;
+    z-index: 3;
+    display: inline-block;
     padding: 0.9rem 2.2rem;
-    border-radius: 8px;
-    font-weight: 600;
+    border-radius: 12px;
+    font-weight: 700;
     text-decoration: none;
-    box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    color: #ffffff;
+    
+    /* ~85% Transparent base fill with subtle highlight tint */
+    background: rgba(255, 255, 255, 0.05);
+    
+    /* Edge highlights and inner drop shadow */
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 
+        inset 0 2px 4px rgba(255, 255, 255, 0.5),
+        inset 0 -3px 6px rgba(0, 0, 0, 0.3),
+        0 8px 32px rgba(0, 0, 0, 0.37);
+
+    /* Backdrop Lens Refraction & Magnification Filters */
+    backdrop-filter: blur(2px) contrast(1.15) brightness(1.1) url(#water-refraction);
+    -webkit-backdrop-filter: blur(2px) contrast(1.15) brightness(1.1);
+
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                box-shadow 0.3s ease, 
+                border-color 0.3s ease;
+    overflow: hidden;
 }
 
+/* Water Surface Specular Shine */
+.hero .cta-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 45%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border-radius: 11px 11px 0 0;
+    pointer-events: none;
+}
+
+/* Dynamic Hover Effect */
 .hero .cta-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+    transform: translateY(-3px) scale(1.03);
+    border-color: rgba(255, 255, 255, 0.65);
+    box-shadow: 
+        inset 0 3px 6px rgba(255, 255, 255, 0.7),
+        inset 0 -4px 8px rgba(0, 0, 0, 0.4),
+        0 12px 35px rgba(37, 99, 235, 0.35);
 }
 
 /* Animated Upscaled Centerpiece Logo */
