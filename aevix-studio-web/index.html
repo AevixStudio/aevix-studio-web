@@ -6,7 +6,6 @@
     <title>Aevix Studio | Digital Media & Development Agency</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Interactive button lock styling */
         .submit-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
@@ -93,7 +92,7 @@
 
             <!-- Mandatory Acceptance Checkbox -->
             <div style="display: flex; align-items: flex-start; gap: 10px; margin: 1.5rem 0; font-size: 0.9rem; color: #9ca3af;">
-                <input type="checkbox" id="terms" name="terms_agreed" required style="width: 18px; height: 18px; margin-top: 2px; cursor: pointer; accent-color: #3b82f6;">
+                <input type="checkbox" id="terms" name="terms_agreed" value="agreed" required style="width: 18px; height: 18px; margin-top: 2px; cursor: pointer; accent-color: #3b82f6;">
                 <label for="terms" style="cursor: pointer; line-height: 1.4;">
                     I have read and agree to the <a href="/terms" target="_blank" style="color: #60a5fa; text-decoration: underline;">Terms & Policies</a>.
                 </label>
@@ -114,11 +113,18 @@
 
     <!-- Interactive Button Lock Script -->
     <script>
-        const termsCheckbox = document.getElementById('terms');
-        const submitBtn = document.getElementById('submit-btn');
+        document.addEventListener('DOMContentLoaded', function() {
+            const termsCheckbox = document.getElementById('terms');
+            const submitBtn = document.getElementById('submit-btn');
 
-        termsCheckbox.addEventListener('change', function() {
-            submitBtn.disabled = !this.checked;
+            if (termsCheckbox && submitBtn) {
+                // Set initial state based on checkbox state
+                submitBtn.disabled = !termsCheckbox.checked;
+
+                termsCheckbox.addEventListener('change', function() {
+                    submitBtn.disabled = !this.checked;
+                });
+            }
         });
     </script>
 
