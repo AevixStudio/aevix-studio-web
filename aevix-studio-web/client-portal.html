@@ -8,135 +8,255 @@
     <!-- Supabase JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        .portal-card { background: #111827; border: 1px solid #1f2937; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; }
-        .progress-bar-bg { background: #1f2937; height: 16px; border-radius: 8px; overflow: hidden; margin: 1rem 0; }
-        .progress-bar-fill { background: linear-gradient(90deg, #3b82f6, #60a5fa); height: 100%; width: 0%; transition: width 0.5s ease; }
-        .badge { padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; }
-        .badge-working { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
-        .badge-delayed { background: rgba(239, 68, 68, 0.2); color: #f87171; }
-        .badge-completed { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
-        .timeline-item { border-left: 2px solid #3b82f6; padding-left: 1rem; margin-bottom: 1rem; }
+        .portal-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        .portal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #1f2937;
+        }
+        .card {
+            background: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+        .progress-bar-container {
+            background: #1f2937;
+            border-radius: 999px;
+            height: 12px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        .progress-bar-fill {
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .stat-box {
+            background: #0b0f17;
+            border: 1px solid #1f2937;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        .stat-label {
+            color: #9ca3af;
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+        }
+        .stat-value {
+            color: #fff;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+        .status-working { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6; }
+        .status-delayed { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+        .status-completed { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #22c55e; }
+        .log-item {
+            border-left: 2px solid #3b82f6;
+            padding-left: 1rem;
+            margin-bottom: 1rem;
+        }
+        .log-date {
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+        .log-text {
+            color: #e5e7eb;
+            margin-top: 0.25rem;
+        }
+        .action-btn {
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .logout-btn {
+            background: transparent;
+            color: #ef4444;
+            border: 1px solid #ef4444;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
 
-    <section class="section-container" id="auth-section">
-        <h2>Client Portal Login</h2>
-        <p class="section-lead">Check your project progress, updates, and deliverables in real time.</p>
-        <div class="portal-card" style="max-width: 450px; margin: 0 auto; text-align: center;">
-            <button id="google-login-btn" class="submit-btn" style="margin-bottom: 1rem;">Sign In with Google</button>
-            <p style="color: #9ca3af; font-size: 0.85rem;">Or sign in with magic link / email setup</p>
-        </div>
-    </section>
-
-    <section class="section-container" id="dashboard-section" style="display: none;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-            <h2>Project Overview</h2>
-            <button id="logout-btn" style="background: transparent; color: #ef4444; border: 1px solid #ef4444; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">Sign Out</button>
+    <div class="portal-container">
+        <div class="portal-header">
+            <div>
+                <h2>Client Dashboard</h2>
+                <p class="section-lead" style="margin: 0;">Track real-time progress, financial summary, and milestone updates.</p>
+            </div>
+            <button id="logout-btn" class="logout-btn" style="display: none;">Sign Out</button>
         </div>
 
-        <div class="portal-card" id="project-details">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h3 id="project-title">Loading Project...</h3>
-                <span id="project-status" class="badge">--</span>
-            </div>
-
-            <div class="progress-bar-bg">
-                <div id="progress-fill" class="progress-bar-fill"></div>
-            </div>
-            <p id="progress-text" style="text-align: right; color: #9ca3af; font-size: 0.9rem;">0% Completed</p>
-
-            <div class="grid" style="margin-top: 2rem;">
-                <div>
-                    <strong style="color: #9ca3af;">Target Deadline:</strong>
-                    <p id="project-deadline" style="font-size: 1.1rem; color: #fff;">--</p>
-                </div>
-                <div>
-                    <strong style="color: #9ca3af;">Total Investment:</strong>
-                    <p id="project-price" style="font-size: 1.1rem; color: #fff;">--</p>
-                </div>
-                <div>
-                    <strong style="color: #9ca3af;">Fees Covered:</strong>
-                    <p id="project-fees" style="font-size: 1.1rem; color: #4ade80;">--</p>
-                </div>
-            </div>
+        <div id="portal-content">
+            <p style="color: #9ca3af;">Checking session authentication...</p>
         </div>
-
-        <div class="portal-card">
-            <h3>What's New & Progress Logs</h3>
-            <div id="activity-timeline" style="margin-top: 1.5rem;">
-                <p style="color: #9ca3af;">No recent updates recorded.</p>
-            </div>
-        </div>
-    </section>
+    </div>
 
     <script>
-        // Supabase Initialization (Replace with your keys)
-        const SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL';
-        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        // Pre-configured Supabase Connection
+        const SUPABASE_URL = 'https://bfabowxtvgknggpqnrpf.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_T4yK_0Sj-cBm38Xq7gK_7w_lpDlolKN';
         const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        const authSection = document.getElementById('auth-section');
-        const dashboardSection = document.getElementById('dashboard-section');
+        const portalContent = document.getElementById('portal-content');
+        const logoutBtn = document.getElementById('logout-btn');
 
-        // Google Auth
-        document.getElementById('google-login-btn').addEventListener('click', async () => {
-            await supabase.auth.signInWithOAuth({ provider: 'google' });
-        });
-
-        // Sign Out
-        document.getElementById('logout-btn').addEventListener('click', async () => {
+        logoutBtn.addEventListener('click', async () => {
             await supabase.auth.signOut();
             window.location.reload();
         });
 
-        // Auth Listener & Data Fetching
+        // Auth state observer
         supabase.auth.onAuthStateChange(async (event, session) => {
-            if (session) {
-                authSection.style.display = 'none';
-                dashboardSection.style.display = 'block';
-                loadClientData(session.user.id);
+            if (!session) {
+                renderAuthScreen();
+                logoutBtn.style.display = 'none';
             } else {
-                authSection.style.display = 'block';
-                dashboardSection.style.display = 'none';
+                logoutBtn.style.display = 'inline-block';
+                loadClientProject(session.user.id);
             }
         });
 
-        async function loadClientData(userId) {
-            // Fetch Project
-            const { data: projects } = await supabase
+        function renderAuthScreen() {
+            portalContent.innerHTML = `
+                <div class="card" style="text-align: center; padding: 3rem 1.5rem;">
+                    <h3 style="margin-bottom: 0.5rem;">Access Your Project Dashboard</h3>
+                    <p style="color: #9ca3af; margin-bottom: 1.5rem;">Sign in with your registered Google account to view progress and timeline logs.</p>
+                    <button onclick="supabase.auth.signInWithOAuth({ provider: 'google' })" class="action-btn">Sign In with Google</button>
+                </div>
+            `;
+        }
+
+        async function loadClientProject(userId) {
+            // Fetch project assigned to this client ID
+            const { data: projects, error } = await supabase
                 .from('projects')
                 .select('*')
-                .eq('client_id', userId)
-                .single();
+                .eq('client_id', userId);
 
-            if (projects) {
-                document.getElementById('project-title').textContent = projects.title;
-                document.getElementById('project-status').textContent = projects.status;
-                document.getElementById('project-status').className = `badge badge-${projects.status}`;
-                document.getElementById('progress-fill').style.width = `${projects.progress}%`;
-                document.getElementById('progress-text').textContent = `${projects.progress}% Completed`;
-                document.getElementById('project-deadline').textContent = projects.deadline || 'TBD';
-                document.getElementById('project-price').textContent = `$${projects.total_price}`;
-                document.getElementById('project-fees').textContent = `$${projects.fees_covered}`;
-
-                // Fetch Activity Logs
-                const { data: logs } = await supabase
-                    .from('activity_logs')
-                    .select('*')
-                    .eq('project_id', projects.id)
-                    .order('created_at', { ascending: false });
-
-                if (logs && logs.length > 0) {
-                    const timeline = document.getElementById('activity-timeline');
-                    timeline.innerHTML = logs.map(log => `
-                        <div class="timeline-item">
-                            <p style="margin-bottom: 0.2rem;">${log.log_text}</p>
-                            <small style="color: #6b7280;">${new Date(log.created_at).toLocaleDateString()}</small>
-                        </div>
-                    `).join('');
-                }
+            if (error) {
+                portalContent.innerHTML = `<p style="color: #ef4444;">Error loading project data: ${error.message}</p>`;
+                return;
             }
+
+            if (!projects || projects.length === 0) {
+                portalContent.innerHTML = `
+                    <div class="card" style="text-align: center; padding: 3rem 1.5rem;">
+                        <h3 style="color: #60a5fa; margin-bottom: 0.5rem;">No Active Project Linked</h3>
+                        <p style="color: #9ca3af;">Your account is authenticated, but no active project has been assigned to your profile yet. Please contact the Aevix Studio team.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const project = projects[0];
+
+            // Fetch activity logs for this project
+            const { data: logs } = await supabase
+                .from('activity_logs')
+                .select('*')
+                .eq('project_id', project.id)
+                .order('created_at', { ascending: false });
+
+            renderDashboardUI(project, logs || []);
+        }
+
+        function renderDashboardUI(project, logs) {
+            const statusClass = `status-${project.status || 'working'}`;
+            const remainingBalance = (project.total_price || 0) - (project.fees_covered || 0);
+
+            let logsHTML = logs.map(log => `
+                <div class="log-item">
+                    <div class="log-date">${new Date(log.created_at).toLocaleString()}</div>
+                    <div class="log-text">${escapeHtml(log.log_text)}</div>
+                </div>
+            `).join('');
+
+            if (logs.length === 0) {
+                logsHTML = `<p style="color: #9ca3af; font-size: 0.9rem;">No timeline updates posted yet.</p>`;
+            }
+
+            portalContent.innerHTML = `
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <h2 style="margin: 0;">${escapeHtml(project.title)}</h2>
+                            <p style="color: #9ca3af; margin: 0.25rem 0 0 0; font-size: 0.9rem;">Assigned Lead: ${escapeHtml(project.assigned_to || 'Aevix Team')}</p>
+                        </div>
+                        <span class="status-badge ${statusClass}">${project.status}</span>
+                    </div>
+
+                    <div style="margin-top: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; font-weight: 500;">
+                            <span>Project Completion</span>
+                            <span>${project.progress || 0}%</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" style="width: ${project.progress || 0}%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-label">Target Deadline</div>
+                            <div class="stat-value">${project.deadline ? new Date(project.deadline).toLocaleDateString() : 'TBD'}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Total Contract Value</div>
+                            <div class="stat-value">$${(project.total_price || 0).toLocaleString()}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Payments Cleared</div>
+                            <div class="stat-value" style="color: #4ade80;">$${(project.fees_covered || 0).toLocaleString()}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Remaining Balance</div>
+                            <div class="stat-value" style="color: ${remainingBalance > 0 ? '#f87171' : '#4ade80'};">$${remainingBalance.toLocaleString()}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 1rem;">Project Timeline & Activity</h3>
+                    <div>${logsHTML}</div>
+                </div>
+            `;
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
         }
     </script>
 </body>
