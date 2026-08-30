@@ -100,14 +100,15 @@
             overflow: hidden;
         }
 
-        /* Large Background Watermark Logo with Scroll-Fade Effect */
+        /* Background Image Logo positioned lower for visibility */
         .bg-watermark-logo {
             position: absolute;
-            top: 52%;
+            top: 58%; /* Positioned lower so the bottom word is clearly visible */
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 580px;
+            width: 620px;
             max-width: 85vw;
+            height: auto;
             opacity: 0.18;
             pointer-events: none;
             z-index: 1;
@@ -174,7 +175,7 @@
             .hero-content h1 { font-size: 2.5rem; }
             .hero-content p { font-size: 1rem; }
             .nav-links { display: none; }
-            .bg-watermark-logo { width: 340px; }
+            .bg-watermark-logo { width: 360px; top: 60%; }
         }
     </style>
 </head>
@@ -193,12 +194,8 @@
     </header>
 
     <section class="hero-section">
-        <!-- Background Logo Watermark (SVG format for crisp resolution) -->
-        <svg class="bg-watermark-logo" id="watermarkLogo" viewBox="0 0 500 400" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M250 40 L410 300 H320 L250 170 L180 300 H90 L250 40 Z" fill="white" fill-opacity="0.15"/>
-            <path d="M140 240 L250 90 L360 240 H290 L250 160 L210 240 H140 Z" fill="white" fill-opacity="0.25"/>
-            <text x="50%" y="360" text-anchor="middle" fill="white" fill-opacity="0.2" font-size="48" font-weight="900" letter-spacing="12">AEVIX</text>
-        </svg>
+        <!-- Root logo image file with scroll-fade behavior -->
+        <img src="logo.png" alt="Aevix Studio Watermark" class="bg-watermark-logo" id="watermarkLogo">
 
         <div class="hero-content">
             <h1>Crafting Digital Experiences That Scale</h1>
@@ -207,19 +204,19 @@
         </div>
     </section>
 
-    <!-- Scroll Effect: Fades and translates logo upward on scroll -->
+    <!-- Scroll Effect Script -->
     <script>
         const watermarkLogo = document.getElementById('watermarkLogo');
 
         window.addEventListener('scroll', () => {
             const scrollY = window.scrollY;
-            const maxScroll = 500; // Distance over which fade completes
+            const maxScroll = 450;
             
-            // Calculate opacity (starts at 0.18, fades to 0)
+            // Calculate opacity (starts at 0.18, fades to 0 as you scroll down)
             const newOpacity = Math.max(0, 0.18 - (scrollY / maxScroll) * 0.18);
             
-            // Calculate upward parallax translation
-            const translateY = -50 - (scrollY * 0.25);
+            // Move logo upward on scroll
+            const translateY = -50 - (scrollY * 0.2);
 
             watermarkLogo.style.opacity = newOpacity;
             watermarkLogo.style.transform = `translate(-50%, ${translateY}%)`;
