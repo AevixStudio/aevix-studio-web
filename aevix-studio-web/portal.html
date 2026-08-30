@@ -110,7 +110,7 @@
     </div>
 
     <script>
-        // Supabase Connection Credentials
+        // Supabase Credentials & Admin Router Configuration
         const SUPABASE_URL = 'https://bfabowxtvgknggpqnrpf.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_T4yK_0Sj-cBm38Xq7gK_7w_lpDlolKN';
         const ADMIN_EMAIL = 'aevixstudio961@gmail.com';
@@ -120,21 +120,22 @@
         const loginBtn = document.getElementById('loginBtn');
         const statusMsg = document.getElementById('statusMsg');
 
-        // Trigger OAuth sign-in with Google
+        // Handle Google Sign-In button click
         loginBtn.addEventListener('click', async () => {
             statusMsg.textContent = "Redirecting to Google...";
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: window.location.origin + window.location.pathname
+                    redirectTo: 'https://aevix-studio-web.pages.dev/portal.html'
                 }
             });
             if (error) {
                 statusMsg.textContent = "Authentication error: " + error.message;
+                console.error("Auth Error:", error);
             }
         });
 
-        // Check auth status and route user based on profile role or email match
+        // Check authentication state on page load and route user
         async function checkUserSession() {
             const { data: { session } } = await supabase.auth.getSession();
             
@@ -142,7 +143,7 @@
                 const user = session.user;
                 statusMsg.textContent = "Authenticated. Routing to dashboard...";
 
-                // Fetch explicit role from Supabase database
+                // Fetch optional role column from profiles table
                 const { data: profile } = await supabase
                     .from('profiles')
                     .select('role')
