@@ -4,87 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Access | Aevix Studio</title>
-    <!-- Supabase JS Client Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-        body {
-            background-color: #0b0f17;
-            color: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 1.5rem;
-        }
-        .portal-card {
-            background: #111827;
-            border: 1px solid #1f2937;
-            border-radius: 12px;
-            padding: 3rem 2.5rem;
-            width: 100%;
-            max-width: 420px;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-        }
-        .brand-logo {
-            font-size: 1.25rem;
-            font-weight: 800;
-            letter-spacing: 0.15em;
-            margin-bottom: 2rem;
-            color: #ffffff;
-        }
-        .portal-card h1 {
-            font-size: 1.75rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-        .portal-card p {
-            color: #9ca3af;
-            font-size: 0.95rem;
-            margin-bottom: 2rem;
-        }
-        .btn-google {
-            width: 100%;
-            background: #ffffff;
-            color: #1f2937;
-            border: none;
-            padding: 0.85rem 1rem;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            transition: background 0.2s, transform 0.1s;
-        }
-        .btn-google:hover {
-            background: #f3f4f6;
-            transform: translateY(-1px);
-        }
-        .status-msg {
-            margin-top: 1.5rem;
-            font-size: 0.85rem;
-            color: #6b7280;
-        }
-        .back-link {
-            display: inline-block;
-            margin-top: 2rem;
-            color: #4b5563;
-            font-size: 0.85rem;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-        .back-link:hover {
-            color: #9ca3af;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: #0b0f17; color: #ffffff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 1.5rem; }
+        .portal-card { background: #111827; border: 1px solid #1f2937; border-radius: 12px; padding: 3rem 2.5rem; width: 100%; max-width: 420px; text-align: center; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); }
+        .brand-logo { font-size: 1.25rem; font-weight: 800; letter-spacing: 0.15em; margin-bottom: 2rem; color: #ffffff; }
+        .portal-card h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .portal-card p { color: #9ca3af; font-size: 0.95rem; margin-bottom: 2rem; }
+        .btn-google { width: 100%; background: #ffffff; color: #1f2937; border: none; padding: 0.85rem 1rem; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.75rem; transition: background 0.2s, transform 0.1s; }
+        .btn-google:hover { background: #f3f4f6; transform: translateY(-1px); }
+        .status-msg { margin-top: 1.5rem; font-size: 0.85rem; color: #6b7280; min-height: 1.2em; }
+        .back-link { display: inline-block; margin-top: 2rem; color: #4b5563; font-size: 0.85rem; text-decoration: none; }
+        .back-link:hover { color: #9ca3af; }
     </style>
 </head>
 <body>
@@ -94,7 +26,7 @@
         <h1>Welcome Back</h1>
         <p>Sign in to access your project portal or team workspace</p>
 
-        <button class="btn-google" id="loginBtn">
+        <button class="btn-google" id="loginBtn" onclick="handleGoogleLogin()">
             <svg width="18" height="18" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -104,46 +36,53 @@
             Continue with Google
         </button>
 
-        <div class="status-msg" id="statusMsg">Checking active session...</div>
+        <div class="status-msg" id="statusMsg"></div>
 
         <a href="index.html" class="back-link">← Return to main site</a>
     </div>
 
     <script>
-        // Supabase Credentials & Admin Router Configuration
         const SUPABASE_URL = 'https://bfabowxtvgknggpqnrpf.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_T4yK_0Sj-cBm38Xq7gK_7w_lpDlolKN';
         const ADMIN_EMAIL = 'aevixstudio961@gmail.com';
 
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let supabase;
+        try {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch (err) {
+            console.error("Supabase init error:", err);
+        }
 
-        const loginBtn = document.getElementById('loginBtn');
-        const statusMsg = document.getElementById('statusMsg');
-
-        // Handle Google Sign-In button click
-        loginBtn.addEventListener('click', async () => {
+        async function handleGoogleLogin() {
+            const statusMsg = document.getElementById('statusMsg');
             statusMsg.textContent = "Redirecting to Google...";
+            
+            if (!supabase) {
+                // Direct OAuth Endpoint Redirect Fallback
+                window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=https://aevix-studio-web.pages.dev/portal.html`;
+                return;
+            }
+
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
                     redirectTo: 'https://aevix-studio-web.pages.dev/portal.html'
                 }
             });
-            if (error) {
-                statusMsg.textContent = "Authentication error: " + error.message;
-                console.error("Auth Error:", error);
-            }
-        });
 
-        // Check authentication state on page load and route user
+            if (error) {
+                statusMsg.textContent = "Auth error: " + error.message;
+            }
+        }
+
         async function checkUserSession() {
+            if (!supabase) return;
             const { data: { session } } = await supabase.auth.getSession();
             
             if (session) {
                 const user = session.user;
-                statusMsg.textContent = "Authenticated. Routing to dashboard...";
+                document.getElementById('statusMsg').textContent = "Authenticated. Routing...";
 
-                // Fetch optional role column from profiles table
                 const { data: profile } = await supabase
                     .from('profiles')
                     .select('role')
@@ -152,14 +91,11 @@
 
                 const role = profile ? profile.role : null;
 
-                // Smart Router logic
                 if (role === 'admin' || role === 'team' || user.email === ADMIN_EMAIL) {
                     window.location.href = 'admin-portal.html';
                 } else {
                     window.location.href = 'client-portal.html';
                 }
-            } else {
-                statusMsg.textContent = "";
             }
         }
 
