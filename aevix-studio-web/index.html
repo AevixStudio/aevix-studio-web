@@ -30,7 +30,7 @@
             <a href="terms/">Terms & Policies</a>
             
             <!-- Google Auth Button -->
-            <button id="google-login-btn" style="background: transparent; border: 1px solid #3b82f6; color: #60a5fa; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
+            <button id="google-login-btn" type="button" style="background: transparent; border: 1px solid #3b82f6; color: #60a5fa; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
                 <svg width="18" height="18" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                     <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -46,7 +46,6 @@
 
     <!-- Hero Section -->
     <section class="hero" id="hero">
-        <!-- Logo Image -->
         <img src="logo.png" alt="Aevix Studio Logo" class="hero-bg-logo" id="hero-logo">
 
         <h1>Crafting Digital Experiences That Scale</h1>
@@ -119,7 +118,7 @@
                 <textarea id="message" name="message" rows="5" placeholder="Tell us about your project scope, timeline, and budget..." required></textarea>
             </div>
 
-            <!-- Mandatory Acceptance Checkbox -->
+            <!-- Acceptance Checkbox -->
             <div style="display: flex; align-items: flex-start; gap: 10px; margin: 1.5rem 0; font-size: 0.9rem; color: #9ca3af;">
                 <input type="checkbox" id="terms" name="terms_agreed" value="agreed" required style="width: 18px; height: 18px; margin-top: 2px; cursor: pointer; accent-color: #3b82f6;">
                 <label for="terms" style="cursor: pointer; line-height: 1.4;">
@@ -127,7 +126,6 @@
                 </label>
             </div>
 
-            <!-- Enhanced Submit Button -->
             <button type="submit" id="submit-btn" class="submit-btn" disabled>Send Message</button>
         </form>
     </section>
@@ -143,70 +141,102 @@
         </div>
     </footer>
 
-    <!-- Interactive Scripts & Authentication Logic -->
+    <!-- Interactive Scripts & Robust Auth Handling -->
     <script>
-        // Supabase Initialization
-        const SUPABASE_URL = 'https://bfabowxtvgknggpqnrpf.supabase.co'; 
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmYWJvd3h0dmdrbmdncHFucnBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMTQwMDQsImV4cCI6MjEwMzU5MDAwNH0.zRuc9gF7qtihFHJJrUDXIwD1l0QJBBVHP_KasxJGMKM'; 
-        
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const SUPABASE_URL = 'https://bfabowxtvgknggpqnrpf.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmYWJvd3h0dmdrbmdncHFucnBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMTQwMDQsImV4cCI6MjEwMzU5MDAwNH0.zRuc9gF7qtihFHJJrUDXIwD1l0QJBBVHP_KasxJGMKM';
+
+        let supabaseClient = null;
+
+        // Safe Supabase Client Initializer
+        function getSupabase() {
+            if (!supabaseClient) {
+                if (window.supabase && typeof window.supabase.createClient === 'function') {
+                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                } else if (typeof createClient === 'function') {
+                    supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                }
+            }
+            return supabaseClient;
+        }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Google OAuth Handler
-            const googleLoginBtn = document.getElementById('google-login-btn');
-            if (googleLoginBtn) {
-                googleLoginBtn.addEventListener('click', async () => {
-                    const { error } = await supabase.auth.signInWithOAuth({
-                        provider: 'google',
-                        options: {
-                            redirectTo: window.location.origin + '/client-portal.html'
-                        }
-                    });
-                    if (error) console.error('OAuth Error:', error.message);
-                });
-            }
-
-            // Checkbox submit enable logic
+            // 1. Form Checkbox Enable Logic (Handles auto-fill & click)
             const termsCheckbox = document.getElementById('terms');
             const submitBtn = document.getElementById('submit-btn');
 
+            function syncSubmitButtonState() {
+                if (termsCheckbox && submitBtn) {
+                    submitBtn.disabled = !termsCheckbox.checked;
+                }
+            }
+
             if (termsCheckbox && submitBtn) {
-                submitBtn.disabled = !termsCheckbox.checked;
-                termsCheckbox.addEventListener('change', function() {
-                    submitBtn.disabled = !this.checked;
+                syncSubmitButtonState();
+                termsCheckbox.addEventListener('change', syncSubmitButtonState);
+                termsCheckbox.addEventListener('click', syncSubmitButtonState);
+            }
+
+            // 2. Google OAuth Trigger
+            const googleLoginBtn = document.getElementById('google-login-btn');
+            if (googleLoginBtn) {
+                googleLoginBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    
+                    const client = getSupabase();
+                    if (!client) {
+                        alert('Supabase SDK failed to load. Check your network or browser ad-blockers.');
+                        return;
+                    }
+
+                    try {
+                        const { data, error } = await client.auth.signInWithOAuth({
+                            provider: 'google',
+                            options: {
+                                redirectTo: window.location.origin + '/portal.html'
+                            }
+                        });
+
+                        if (error) {
+                            alert('Login Error: ' + error.message);
+                            console.error('OAuth Error:', error);
+                        }
+                    } catch (err) {
+                        alert('Authentication triggered an exception: ' + err.message);
+                        console.error('Execution Error:', err);
+                    }
                 });
             }
 
-            // Hero Logo Slide, Fade & Background Color Darkening Scroll Animation
+            // 3. Hero Scroll Animation
             const heroSection = document.getElementById('hero');
             const heroLogo = document.getElementById('hero-logo');
-
             const startColor = { r: 13, g: 26, b: 45 };
             const endColor = { r: 11, g: 15, b: 23 };
 
-            window.addEventListener('scroll', () => {
-                const scrollPosition = window.scrollY;
-                const heroHeight = heroSection.offsetHeight;
+            if (heroSection && heroLogo) {
+                window.addEventListener('scroll', () => {
+                    const scrollPosition = window.scrollY;
+                    const heroHeight = heroSection.offsetHeight;
 
-                if (scrollPosition <= heroHeight) {
-                    const progress = Math.min(scrollPosition / heroHeight, 1);
-                    
-                    const translateY = -50 - (progress * 100);
-                    const scale = 1 - (progress * 0.2);
-                    const opacity = Math.max(0, 0.22 * (1 - progress * 1.5));
-                    
-                    heroLogo.style.transform = `translate(-50%, ${translateY}%) scale(${scale})`;
-                    heroLogo.style.opacity = opacity;
+                    if (scrollPosition <= heroHeight) {
+                        const progress = Math.min(scrollPosition / heroHeight, 1);
+                        const translateY = -50 - (progress * 100);
+                        const scale = 1 - (progress * 0.2);
+                        const opacity = Math.max(0, 0.22 * (1 - progress * 1.5));
+                        
+                        heroLogo.style.transform = `translate(-50%, ${translateY}%) scale(${scale})`;
+                        heroLogo.style.opacity = opacity;
 
-                    const r = Math.round(startColor.r + (endColor.r - startColor.r) * progress);
-                    const g = Math.round(startColor.g + (endColor.g - startColor.g) * progress);
-                    const b = Math.round(startColor.b + (endColor.b - startColor.b) * progress);
+                        const r = Math.round(startColor.r + (endColor.r - startColor.r) * progress);
+                        const g = Math.round(startColor.g + (endColor.g - startColor.g) * progress);
+                        const b = Math.round(startColor.b + (endColor.b - startColor.b) * progress);
 
-                    heroSection.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
-                }
-            });
+                        heroSection.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+                    }
+                });
+            }
         });
     </script>
-
 </body>
 </html>
