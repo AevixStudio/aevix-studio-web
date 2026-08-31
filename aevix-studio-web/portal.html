@@ -4,102 +4,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Access | Aevix Studio</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background-color: #0b0f17; color: #ffffff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 1.5rem; }
-        .portal-card { background: #111827; border: 1px solid #1f2937; border-radius: 12px; padding: 3rem 2.5rem; width: 100%; max-width: 420px; text-align: center; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); }
-        .brand-logo { font-size: 1.25rem; font-weight: 800; letter-spacing: 0.15em; margin-bottom: 2rem; color: #ffffff; }
-        .portal-card h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; }
-        .portal-card p { color: #9ca3af; font-size: 0.95rem; margin-bottom: 2rem; }
-        .btn-google { width: 100%; background: #ffffff; color: #1f2937; border: none; padding: 0.85rem 1rem; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.75rem; transition: background 0.2s, transform 0.1s; }
-        .btn-google:hover { background: #f3f4f6; transform: translateY(-1px); }
-        .status-msg { margin-top: 1.5rem; font-size: 0.85rem; color: #6b7280; min-height: 1.2em; }
-        .back-link { display: inline-block; margin-top: 2rem; color: #4b5563; font-size: 0.85rem; text-decoration: none; }
-        .back-link:hover { color: #9ca3af; }
+        body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #0b0f17; color: #fff; font-family: system-ui, sans-serif; margin: 0; }
+        .auth-card { background: #131c2e; border: 1px solid #1e293b; padding: 2.5rem; border-radius: 12px; max-width: 400px; width: 90%; text-align: center; }
+        .status-msg { margin-top: 1rem; color: #9ca3af; font-size: 0.95rem; }
     </style>
 </head>
 <body>
 
-    <div class="portal-card">
-        <div class="brand-logo">AEVIX STUDIO</div>
-        <h1>Welcome Back</h1>
-        <p>Sign in to access your project portal or team workspace</p>
-
-        <button class="btn-google" id="loginBtn" onclick="handleGoogleLogin()">
-            <svg width="18" height="18" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-            </svg>
-            Continue with Google
-        </button>
-
-        <div class="status-msg" id="statusMsg"></div>
-
-        <a href="index.html" class="back-link">← Return to main site</a>
+    <div class="auth-card">
+        <h2 style="margin-top:0; letter-spacing: 2px;">AEVIX STUDIO</h2>
+        <div id="status-title" style="font-size: 1.25rem; font-weight: 600; margin-top: 1.5rem;">Authenticating...</div>
+        <div id="status-desc" class="status-msg">Verifying session credentials and securing routing...</div>
     </div>
 
     <script>
         const SUPABASE_URL = 'https://bfabowxtvgknggpqnrpf.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_T4yK_0Sj-cBm38Xq7gK_7w_lpDlolKN';
-        const ADMIN_EMAIL = 'aevixstudio961@gmail.com';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmYWJvd3h0dmdrbmdncHFucnBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMTQwMDQsImV4cCI6MjEwMzU5MDAwNH0.zRuc9gF7qtihFHJJrUDXIwD1l0QJBBVHP_KasxJGMKM';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let supabase;
-        try {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        } catch (err) {
-            console.error("Supabase init error:", err);
-        }
+        async function handleAuthRouting() {
+            const titleEl = document.getElementById('status-title');
+            const descEl = document.getElementById('status-desc');
 
-        async function handleGoogleLogin() {
-            const statusMsg = document.getElementById('statusMsg');
-            statusMsg.textContent = "Redirecting to Google...";
-            
-            if (!supabase) {
-                // Direct OAuth Endpoint Redirect Fallback
-                window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=https://aevix-studio-web.pages.dev/portal.html`;
+            // 1. Get Session
+            const { data: { session }, error } = await supabase.auth.getSession();
+
+            if (error || !session) {
+                // Check if session event resolves hash
+                supabase.auth.onAuthStateChange(async (event, currentSession) => {
+                    if (currentSession) {
+                        await routeUser(currentSession.user);
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                });
                 return;
             }
 
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    redirectTo: 'https://aevix-studio-web.pages.dev/portal.html'
-                }
-            });
-
-            if (error) {
-                statusMsg.textContent = "Auth error: " + error.message;
-            }
+            await routeUser(session.user);
         }
 
-        async function checkUserSession() {
-            if (!supabase) return;
-            const { data: { session } } = await supabase.auth.getSession();
+        async function routeUser(user) {
+            const titleEl = document.getElementById('status-title');
+            const descEl = document.getElementById('status-desc');
+
+            titleEl.innerText = "Checking Permissions...";
             
-            if (session) {
-                const user = session.user;
-                document.getElementById('statusMsg').textContent = "Authenticated. Routing...";
+            // 2. Fetch User Profile & Role from database
+            const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', user.id)
+                .single();
 
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('role')
-                    .eq('id', user.id)
-                    .single();
-
-                const role = profile ? profile.role : null;
-
-                if (role === 'admin' || role === 'team' || user.email === ADMIN_EMAIL) {
-                    window.location.href = 'admin-portal.html';
-                } else {
-                    window.location.href = 'client-portal.html';
-                }
+            // Direct fallback routing based on your admin email if table isn't updated yet
+            if (user.email === 'aevixstudio961@gmail.com' || (profile && profile.role === 'admin')) {
+                titleEl.innerText = "Access Granted";
+                descEl.innerText = "Redirecting to Team Workspace...";
+                window.location.href = 'admin-portal.html';
+            } else {
+                titleEl.innerText = "Access Granted";
+                descEl.innerText = "Redirecting to Client Dashboard...";
+                window.location.href = 'client-portal.html';
             }
         }
 
-        checkUserSession();
+        document.addEventListener('DOMContentLoaded', handleAuthRouting);
     </script>
 </body>
 </html>
