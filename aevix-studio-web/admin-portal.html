@@ -1,145 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Team Admin Portal | Aevix Studio</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        .portal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #1f2937;
+<script>
+    const SUPABASE_URL = 'https://bfabowxtvgknggpqnrpf.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmYWJvd3h0dmdrbmdncHFucnBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMTQwMDQsImV4cCI6MjEwMzU5MDAwNH0.zRuc9gF7qtihFHJJrUDXIwD1l0QJBBVHP_KasxJGMKM';
+    
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: {
+            flowType: 'pkce',
+            autoRefreshToken: true,
+            persistSession: true,
+            detectSessionInUrl: true
         }
-        .admin-table-container {
-            background: #111827;
-            border: 1px solid #1f2937;
-            border-radius: 12px;
-            overflow-x: auto;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-        }
-        .admin-table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 0.95rem;
-        }
-        .admin-table th {
-            background: #1f2937;
-            color: #9ca3af;
-            padding: 16px;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
-        }
-        .admin-table td {
-            padding: 14px 16px;
-            border-bottom: 1px solid #1f2937;
-            color: #e5e7eb;
-            vertical-align: middle;
-        }
-        .admin-table tr:last-child td {
-            border-bottom: none;
-        }
-        .input-inline {
-            background: #0b0f17;
-            border: 1px solid #374151;
-            color: #fff;
-            padding: 8px 10px;
-            border-radius: 6px;
-            outline: none;
-            font-size: 0.9rem;
-            transition: border-color 0.2s;
-        }
-        .input-inline:focus {
-            border-color: #3b82f6;
-        }
-        .action-btn {
-            background: #2563eb;
-            color: #ffffff;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background 0.2s;
-        }
-        .action-btn:hover {
-            background: #1d4ed8;
-        }
-        .logout-btn {
-            background: transparent;
-            color: #ef4444;
-            border: 1px solid #ef4444;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-        .logout-btn:hover {
-            background: #ef4444;
-            color: #fff;
-        }
-    </style>
-</head>
-<body>
+    });
 
-    <section class="section-container" style="max-width: 1300px; margin: 0 auto; padding: 2rem 1rem;">
-        <div class="portal-header">
-            <div>
-                <h2>Team Operations Workspace</h2>
-                <p class="section-lead" style="margin: 0;">Manage ongoing projects, set deadlines, track payments, and publish client updates.</p>
-            </div>
-            <button id="logout-btn" class="logout-btn" style="display: none;">Sign Out</button>
-        </div>
+    const workspaceContent = document.getElementById('workspace-content');
+    const logoutBtn = document.getElementById('logout-btn');
 
-        <div id="workspace-content">
-            <p style="color: #9ca3af;">Verifying administrative permissions...</p>
-        </div>
-    </section>
+    logoutBtn.addEventListener('click', async () => {
+        await supabase.auth.signOut();
+        window.location.href = 'index.html';
+    });
 
-    <script>
-        const SUPABASE_URL = 'https://bfabowxtvgknggpqnrpf.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmYWJvd3h0dmdrbmdncHFucnBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMTQwMDQsImV4cCI6MjEwMzU5MDAwNH0.zRuc9gF7qtihFHJJrUDXIwD1l0QJBBVHP_KasxJGMKM';
-        
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-            auth: {
-                flowType: 'pkce',
-                autoRefreshToken: true,
-                persistSession: true,
-                detectSessionInUrl: true
-            }
-        });
+    async function checkUserPermissions(session) {
+        if (!session) {
+            renderAccessDenied("Authentication required to access this workspace.");
+            logoutBtn.style.display = 'none';
+            return;
+        }
 
-        const workspaceContent = document.getElementById('workspace-content');
-        const logoutBtn = document.getElementById('logout-btn');
+        // Primary admin email bypass check
+        if (session.user && session.user.email === 'aevixstudio961@gmail.com') {
+            logoutBtn.style.display = 'inline-block';
+            fetchAllProjects();
+            return;
+        }
 
-        logoutBtn.addEventListener('click', async () => {
-            await supabase.auth.signOut();
-            window.location.href = 'index.html';
-        });
-
-        supabase.auth.onAuthStateChange(async (event, session) => {
-            if (!session) {
-                renderAccessDenied("Authentication required to access this workspace.");
-                logoutBtn.style.display = 'none';
-                return;
-            }
-
-            // Primary admin email bypass check
-            if (session.user.email === 'aevixstudio961@gmail.com') {
-                logoutBtn.style.display = 'inline-block';
-                fetchAllProjects();
-                return;
-            }
-
-            // Database role check for non-primary accounts
+        // Database role check for non-primary accounts
+        try {
             const { data: profile, error } = await supabase
                 .from('profiles')
                 .select('role')
@@ -153,28 +48,49 @@
                 logoutBtn.style.display = 'inline-block';
                 fetchAllProjects();
             }
-        });
-
-        function renderAccessDenied(message) {
-            workspaceContent.innerHTML = `
-                <div style="text-align: center; padding: 4rem 2rem; background: #111827; border: 1px solid #1f2937; border-radius: 12px;">
-                    <h3 style="color: #ef4444; margin-top: 0;">Restricted Access</h3>
-                    <p style="color: #9ca3af; margin-bottom: 1.5rem;">${message}</p>
-                    <a href="index.html" style="color: #60a5fa; text-decoration: underline;">Return to Main Site</a>
-                </div>
-            `;
+        } catch (err) {
+            console.error("Auth Verification Error:", err);
+            renderAccessDenied("An error occurred while checking permissions.");
+            logoutBtn.style.display = 'inline-block';
         }
+    }
 
-        async function fetchAllProjects() {
-            workspaceContent.innerHTML = `
-                <div class="admin-table-container">
-                    <div style="padding: 2rem; text-align: center; color: #9ca3af;">
-                        Loading project management dashboard...
-                    </div>
+    function renderAccessDenied(message) {
+        workspaceContent.innerHTML = `
+            <div style="text-align: center; padding: 4rem 2rem; background: #111827; border: 1px solid #1f2937; border-radius: 12px;">
+                <h3 style="color: #ef4444; margin-top: 0;">Restricted Access</h3>
+                <p style="color: #9ca3af; margin-bottom: 1.5rem;">${message}</p>
+                <a href="index.html" style="color: #60a5fa; text-decoration: underline;">Return to Main Site</a>
+            </div>
+        `;
+    }
+
+    async function fetchAllProjects() {
+        workspaceContent.innerHTML = `
+            <div class="admin-table-container">
+                <div style="padding: 2rem; text-align: center; color: #9ca3af;">
+                    Loading project management dashboard...
                 </div>
-            `;
-            // Add custom data fetching methods here
+            </div>
+        `;
+    }
+
+    // Initialize: check active session immediately upon load
+    (async () => {
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            await checkUserPermissions(session);
+        } catch (err) {
+            console.error("Failed to retrieve session:", err);
+            renderAccessDenied("Authentication error. Please sign in again.");
         }
-    </script>
-</body>
-</html>
+    })();
+
+    // Listen for state changes (sign in, sign out, token refresh)
+    supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_OUT') {
+            renderAccessDenied("Authentication required to access this workspace.");
+            logoutBtn.style.display = 'none';
+        }
+    });
+</script>
