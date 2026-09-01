@@ -5,26 +5,72 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Access | Aevix Studio</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Supabase JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #0b0f17; color: #fff; font-family: system-ui, sans-serif; margin: 0; }
-        .auth-card { background: #131c2e; border: 1px solid #1e293b; padding: 2.5rem; border-radius: 12px; max-width: 400px; width: 90%; text-align: center; }
-        .status-msg { margin-top: 1rem; color: #9ca3af; font-size: 0.95rem; }
+        body {
+            background-color: #0b0f17;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .auth-card {
+            background: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 12px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+        .btn-google {
+            background-color: #2563eb;
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1.5rem;
+            transition: background 0.2s ease;
+        }
+        .btn-google:hover {
+            background-color: #1d4ed8;
+        }
+        .status-msg {
+            color: #9ca3af;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
     </style>
 </head>
 <body>
 
-    <div class="auth-card">
-        <h2 style="margin-top:0; letter-spacing: 2px;">AEVIX STUDIO</h2>
-        <div id="status-title" style="font-size: 1.25rem; font-weight: 600; margin-top: 1.5rem;">Authenticating...</div>
-        <div id="status-desc" class="status-msg">Verifying session credentials and securing routing...</div>
+    <div class="auth-card" id="auth-card">
+        <h2 style="margin-top: 0; letter-spacing: 1px;">AEVIX STUDIO</h2>
+        
+        <div id="loading-state">
+            <h3 style="color: #60a5fa; margin-bottom: 0.5rem;">Authenticating...</h3>
+            <p class="status-msg">Verifying session credentials and securing routing...</p>
+        </div>
+
+        <div id="login-state" style="display: none;">
+            <p style="color: #d1d5db; margin-bottom: 0.5rem;">Sign in to access your dashboard</p>
+            <button class="btn-google" id="google-btn">Sign In with Google</button>
+        </div>
     </div>
 
     <script>
         const SUPABASE_URL = 'https://bfabowxtvgknggpqnrpf.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmYWJvd3h0dmdrbmdncHFucnBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMTQwMDQsImV4cCI6MjEwMzU5MDAwNH0.zRuc9gF7qtihFHJJrUDXIwD1l0QJBBVHP_KasxJGMKM';
-        
-        // Initialize client with explicit PKCE flow enabled
+
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
             auth: {
                 flowType: 'pkce',
@@ -34,87 +80,83 @@
             }
         });
 
-        async function initAuth() {
-            const titleEl = document.getElementById('status-title');
-            const descEl = document.getElementById('status-desc');
+        const loadingState = document.getElementById('loading-state');
+        const loginState = document.getElementById('login-state');
+        const googleBtn = document.getElementById('google-btn');
 
-            try {
-                // 1. Explicitly exchange authorization code if present in URL
-                const urlParams = new URLSearchParams(window.location.search);
-                const authCode = urlParams.get('code');
-
-                if (authCode) {
-                    const { data, error } = await supabase.auth.exchangeCodeForSession(authCode);
-                    if (data?.session?.user) {
-                        return routeUser(data.session.user);
-                    }
+        googleBtn.addEventListener('click', async () => {
+            const redirectUrl = window.location.origin + '/portal.html';
+            await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: redirectUrl
                 }
+            });
+        });
 
-                // 2. Check current active session
-                const { data: { session } } = await supabase.auth.getSession();
-                if (session && session.user) {
-                    return routeUser(session.user);
-                }
-
-                // 3. Backup listener for asynchronous auth changes
-                supabase.auth.onAuthStateChange(async (event, session) => {
-                    if (session && session.user) {
-                        await routeUser(session.user);
-                    } else if (event === 'SIGNED_OUT' || (!session && !window.location.search.includes('code='))) {
-                        window.location.href = 'index.html';
-                    }
-                });
-
-                // Fail-safe timeout if token processing stalls
-                setTimeout(() => {
-                    if (titleEl.innerText === "Authenticating...") {
-                        titleEl.innerText = "Session Not Found";
-                        descEl.innerText = "Redirecting to main site...";
-                        setTimeout(() => { window.location.href = 'index.html'; }, 1500);
-                    }
-                }, 4000);
-
-            } catch (err) {
-                console.error("Auth routing error:", err);
-                window.location.href = 'index.html';
+        async function processRouting(session) {
+            if (!session) {
+                loadingState.style.display = 'none';
+                loginState.style.display = 'block';
+                return;
             }
-        }
 
-        async function routeUser(user) {
-            const titleEl = document.getElementById('status-title');
-            const descEl = document.getElementById('status-desc');
+            const userEmail = session.user.email ? session.user.email.toLowerCase() : '';
 
-            titleEl.innerText = "Access Granted";
-
-            // Instant check for primary admin account
-            if (user.email === 'aevixstudio961@gmail.com') {
-                descEl.innerText = "Redirecting to Admin Workspace...";
+            // 1. Direct Hardcoded Admin Check
+            if (userEmail === 'aevixstudio961@gmail.com') {
                 window.location.href = 'admin-portal.html';
                 return;
             }
 
-            // Fallback check against database role
-            try {
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('role')
-                    .eq('id', user.id)
-                    .maybeSingle();
+            // 2. Database Profile Check
+            const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', session.user.id)
+                .maybeSingle();
 
-                if (profile && profile.role === 'admin') {
-                    descEl.innerText = "Redirecting to Admin Workspace...";
-                    window.location.href = 'admin-portal.html';
-                } else {
-                    descEl.innerText = "Redirecting to Client Dashboard...";
-                    window.location.href = 'client-portal.html';
-                }
-            } catch (err) {
-                descEl.innerText = "Redirecting to Client Dashboard...";
+            if (profile && (profile.role === 'admin' || profile.role === 'team')) {
+                window.location.href = 'admin-portal.html';
+            } else {
                 window.location.href = 'client-portal.html';
             }
         }
 
-        document.addEventListener('DOMContentLoaded', initAuth);
+        async function initAuth() {
+            // Check for PKCE ?code= parameter manually in case hash parsing missed it
+            const urlParams = new URLSearchParams(window.location.search);
+            const authCode = urlParams.get('code');
+
+            if (authCode) {
+                try {
+                    const { data, error } = await supabase.auth.exchangeCodeForSession(authCode);
+                    if (!error && data.session) {
+                        await processRouting(data.session);
+                        return;
+                    }
+                } catch (e) {
+                    console.error("Code exchange exception:", e);
+                }
+            }
+
+            // Standard session check
+            const { data: { session } } = await supabase.auth.getSession();
+            await processRouting(session);
+        }
+
+        // Auth state listener for sign-in returns
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+                await processRouting(session);
+            } else if (event === 'SIGNED_OUT') {
+                loadingState.style.display = 'none';
+                loginState.style.display = 'block';
+            }
+        });
+
+        // Run on page load
+        initAuth();
     </script>
 </body>
 </html>
