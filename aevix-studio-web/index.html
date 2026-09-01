@@ -141,14 +141,13 @@
         </div>
     </footer>
 
-    <!-- Interactive Scripts & Robust Auth Handling -->
+    <!-- Interactive Scripts & Direct Auth Handling -->
     <script>
         const SUPABASE_URL = 'https://bfabowxtvgknggpqnrpf.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmYWJvd3h0dmdrbmdncHFucnBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMTQwMDQsImV4cCI6MjEwMzU5MDAwNH0.zRuc9gF7qtihFHJJrUDXIwD1l0QJBBVHP_KasxJGMKM';
 
         let supabaseClient = null;
 
-        // Safe Supabase Client Initializer with PKCE Flow
         function getSupabase() {
             if (!supabaseClient) {
                 const config = {
@@ -168,7 +167,55 @@
             return supabaseClient;
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        // Direct Role Routing Logic
+        async function handleRoleRouting(session) {
+            if (!session || !session.user) return;
+
+            const email = (session.user.email || '').toLowerCase();
+
+            // 1. Super-Admin Check
+            if (email === 'aevixstudio961@gmail.com') {
+                window.location.replace('admin-portal.html');
+                return;
+            }
+
+            // 2. Database Role Query
+            const client = getSupabase();
+            try {
+                const { data: profile } = await client
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', session.user.id)
+                    .maybeSingle();
+
+                if (profile && (profile.role === 'admin' || profile.role === 'team')) {
+                    window.location.replace('admin-portal.html');
+                } else {
+                    window.location.replace('client-portal.html');
+                }
+            } catch (err) {
+                console.error('Routing check error:', err);
+                window.location.replace('client-portal.html');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            const client = getSupabase();
+
+            // Check if user is already logged in (or coming back from OAuth redirect)
+            if (client) {
+                const { data: { session } } = await client.auth.getSession();
+                if (session) {
+                    await handleRoleRouting(session);
+                }
+
+                client.auth.onAuthStateChange(async (event, session) => {
+                    if (session && event === 'SIGNED_IN') {
+                        await handleRoleRouting(session);
+                    }
+                });
+            }
+
             // 1. Form Checkbox Enable Logic
             const termsCheckbox = document.getElementById('terms');
             const submitBtn = document.getElementById('submit-btn');
@@ -185,23 +232,22 @@
                 termsCheckbox.addEventListener('click', syncSubmitButtonState);
             }
 
-            // 2. Google OAuth Trigger with PKCE Parameters
+            // 2. Direct Google OAuth Trigger
             const googleLoginBtn = document.getElementById('google-login-btn');
             if (googleLoginBtn) {
                 googleLoginBtn.addEventListener('click', async (e) => {
                     e.preventDefault();
                     
-                    const client = getSupabase();
                     if (!client) {
                         alert('Supabase SDK failed to load. Check your network or browser ad-blockers.');
                         return;
                     }
 
                     try {
-                        const { data, error } = await client.auth.signInWithOAuth({
+                        const { error } = await client.auth.signInWithOAuth({
                             provider: 'google',
                             options: {
-                                redirectTo: window.location.origin + '/portal',
+                                redirectTo: window.location.origin + '/index.html',
                                 queryParams: {
                                     access_type: 'offline',
                                     prompt: 'consent'
