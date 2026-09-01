@@ -118,9 +118,9 @@
 
         <!-- Navigation Tabs -->
         <div class="admin-nav-tabs" id="tab-controls" style="display: none;">
-            <button class="tab-btn active" onclick="switchTab('projects')">Project Overview</button>
-            <button class="tab-btn" onclick="switchTab('inquiries')">Client & Inquiries</button>
-            <button class="tab-btn" onclick="switchTab('payments')">Payments & Invoices</button>
+            <button class="tab-btn active" onclick="switchTab('projects', event)">Project Overview</button>
+            <button class="tab-btn" onclick="switchTab('inquiries', event)">Client & Inquiries</button>
+            <button class="tab-btn" onclick="switchTab('payments', event)">Payments & Invoices</button>
         </div>
 
         <div id="workspace-content">
@@ -182,10 +182,12 @@
             loadActiveTab();
         }
 
-        function switchTab(tabName) {
+        function switchTab(tabName, evt) {
             currentTab = tabName;
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            if (evt && evt.target) {
+                evt.target.classList.add('active');
+            }
             loadActiveTab();
         }
 
@@ -200,7 +202,7 @@
             workspaceContent.innerHTML = `<div style="text-align: center; color: #9ca3af; padding: 2rem;">Loading projects...</div>`;
             const { data: projects, error } = await supabase.from('projects').select('*').order('created_at', { ascending: false });
 
-            if (error || !projects.length) {
+            if (error || !projects || !projects.length) {
                 workspaceContent.innerHTML = `<div class="admin-table-container"><div style="padding: 2rem; text-align: center; color: #9ca3af;">No active projects found.</div></div>`;
                 return;
             }
@@ -224,11 +226,11 @@
                 const statusClass = p.status === 'Completed' ? 'badge-completed' : (p.status === 'In Progress' ? 'badge-active' : 'badge-pending');
                 html += `
                     <tr>
-                        <td><strong>${p.client_name}</strong></td>
-                        <td>${p.project_title}</td>
-                        <td><span class="badge ${statusClass}">${p.status}</span></td>
-                        <td>${p.deadline ? p.deadline : 'N/A'}</td>
-                        <td>$${p.budget ? p.budget.toLocaleString() : '0.00'}</td>
+                        <td><strong>${escapeHtml(p.client_name || 'N/A')}</strong></td>
+                        <td>${escapeHtml(p.project_title || 'N/A')}</td>
+                        <td><span class="badge ${statusClass}">${escapeHtml(p.status || 'Pending')}</span></td>
+                        <td>${p.deadline ? escapeHtml(p.deadline) : 'N/A'}</td>
+                        <td>$${p.budget ? Number(p.budget).toLocaleString() : '0.00'}</td>
                     </tr>
                 `;
             });
@@ -242,7 +244,7 @@
             workspaceContent.innerHTML = `<div style="text-align: center; color: #9ca3af; padding: 2rem;">Loading inquiries...</div>`;
             const { data: inquiries, error } = await supabase.from('inquiries').select('*').order('created_at', { ascending: false });
 
-            if (error || !inquiries.length) {
+            if (error || !inquiries || !inquiries.length) {
                 workspaceContent.innerHTML = `<div class="admin-table-container"><div style="padding: 2rem; text-align: center; color: #9ca3af;">No submissions or client inquiries found.</div></div>`;
                 return;
             }
@@ -265,11 +267,11 @@
             inquiries.forEach(i => {
                 html += `
                     <tr>
-                        <td><strong>${i.client_name}</strong></td>
-                        <td>${i.email}</td>
-                        <td>${i.service_requested || 'General'}</td>
-                        <td style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${i.message}</td>
-                        <td><span class="badge badge-active">${i.status}</span></td>
+                        <td><strong>${escapeHtml(i.client_name || 'N/A')}</strong></td>
+                        <td>${escapeHtml(i.email || 'N/A')}</td>
+                        <td>${escapeHtml(i.service_requested || 'General')}</td>
+                        <td style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escapeHtml(i.message || '')}">${escapeHtml(i.message || 'N/A')}</td>
+                        <td><span class="badge badge-active">${escapeHtml(i.status || 'New')}</span></td>
                     </tr>
                 `;
             });
@@ -283,7 +285,7 @@
             workspaceContent.innerHTML = `<div style="text-align: center; color: #9ca3af; padding: 2rem;">Loading payment details...</div>`;
             const { data: payments, error } = await supabase.from('payments').select('*').order('created_at', { ascending: false });
 
-            if (error || !payments.length) {
+            if (error || !payments || !payments.length) {
                 workspaceContent.innerHTML = `<div class="admin-table-container"><div style="padding: 2rem; text-align: center; color: #9ca3af;">No payment records found.</div></div>`;
                 return;
             }
@@ -307,11 +309,11 @@
                 const statusClass = pm.status === 'Paid' ? 'badge-completed' : 'badge-pending';
                 html += `
                     <tr>
-                        <td><strong>${pm.client_name}</strong></td>
-                        <td>${pm.milestone}</td>
-                        <td>$${pm.amount.toLocaleString()}</td>
-                        <td>${pm.due_date ? pm.due_date : 'N/A'}</td>
-                        <td><span class="badge ${statusClass}">${pm.status}</span></td>
+                        <td><strong>${escapeHtml(pm.client_name || 'N/A')}</strong></td>
+                        <td>${escapeHtml(pm.milestone || 'N/A')}</td>
+                        <td>$${pm.amount ? Number(pm.amount).toLocaleString() : '0.00'}</td>
+                        <td>${pm.due_date ? escapeHtml(pm.due_date) : 'N/A'}</td>
+                        <td><span class="badge ${statusClass}">${escapeHtml(pm.status || 'Unpaid')}</span></td>
                     </tr>
                 `;
             });
@@ -325,10 +327,19 @@
             workspaceContent.innerHTML = `
                 <div style="text-align: center; padding: 4rem 2rem; background: #111827; border: 1px solid #1f2937; border-radius: 12px;">
                     <h3 style="color: #ef4444; margin-top: 0;">Restricted Access</h3>
-                    <p style="color: #9ca3af; margin-bottom: 1.5rem;">${message}</p>
+                    <p style="color: #9ca3af; margin-bottom: 1.5rem;">${escapeHtml(message)}</p>
                     <a href="index.html" style="color: #60a5fa; text-decoration: underline;">Return to Main Site</a>
                 </div>
             `;
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
         }
 
         (async () => {
