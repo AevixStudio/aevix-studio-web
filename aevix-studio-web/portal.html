@@ -51,7 +51,7 @@
 </head>
 <body>
 
-    <div class="auth-card" id="auth-card">
+    <div class="auth-card">
         <h2 style="margin-top: 0; letter-spacing: 1px;">AEVIX STUDIO</h2>
         
         <div id="loading-state">
@@ -66,110 +66,88 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const loadingState = document.getElementById('loading-state');
-            const loginState = document.getElementById('login-state');
-            const googleBtn = document.getElementById('google-btn');
+        const SUPABASE_URL = 'https://bfabowxtvgknggpqnrpf.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmYWJvd3h0dmdrbmdncHFucnBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMTQwMDQsImV4cCI6MjEwMzU5MDAwNH0.zRuc9gF7qtihFHJJrUDXIwD1l0QJBBVHP_KasxJGMKM';
 
-            const SUPABASE_URL = 'https://bfabowxtvgknggpqnrpf.supabase.co';
-            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmYWJvd3h0dmdrbmdncHFucnBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMTQwMDQsImV4cCI6MjEwMzU5MDAwNH0.zRuc9gF7qtihFHJJrUDXIwD1l0QJBBVHP_KasxJGMKM';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: {
+                flowType: 'pkce',
+                autoRefreshToken: true,
+                persistSession: true,
+                detectSessionInUrl: true
+            }
+        });
 
-            if (!window.supabase || !window.supabase.createClient) {
-                console.error("Supabase CDN not available.");
-                loadingState.style.display = 'none';
-                loginState.style.display = 'block';
+        const loadingState = document.getElementById('loading-state');
+        const loginState = document.getElementById('login-state');
+        const googleBtn = document.getElementById('google-btn');
+
+        function showLoginUI() {
+            loadingState.style.display = 'none';
+            loginState.style.display = 'block';
+        }
+
+        googleBtn.addEventListener('click', async () => {
+            const redirectUrl = window.location.origin + window.location.pathname;
+            await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: { redirectTo: redirectUrl }
+            });
+        });
+
+        async function routeUser(session) {
+            if (!session) {
+                showLoginUI();
                 return;
             }
 
-            const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-                auth: {
-                    flowType: 'pkce',
-                    autoRefreshToken: true,
-                    persistSession: true,
-                    detectSessionInUrl: true
-                }
-            });
+            const email = session.user?.email?.toLowerCase() || '';
 
-            function showLoginUI() {
-                loadingState.style.display = 'none';
-                loginState.style.display = 'block';
-            }
-
-            // Fallback timer: force UI after 2.5s if Supabase request hangs
-            const fallbackTimer = setTimeout(() => {
-                showLoginUI();
-            }, 2500);
-
-            googleBtn.addEventListener('click', async () => {
-                const redirectUrl = window.location.origin + '/portal.html';
-                await supabaseClient.auth.signInWithOAuth({
-                    provider: 'google',
-                    options: { redirectTo: redirectUrl }
-                });
-            });
-
-            async function processRouting(session) {
-                if (!session) {
-                    showLoginUI();
-                    return;
-                }
-
-                const userEmail = session.user && session.user.email ? session.user.email.toLowerCase() : '';
-
-                if (userEmail === 'aevixstudio961@gmail.com') {
-                    window.location.href = 'admin-portal.html';
-                    return;
-                }
-
-                try {
-                    const { data: profile } = await supabaseClient
-                        .from('profiles')
-                        .select('role')
-                        .eq('id', session.user.id)
-                        .maybeSingle();
-
-                    if (profile && (profile.role === 'admin' || profile.role === 'team')) {
-                        window.location.href = 'admin-portal.html';
-                    } else {
-                        window.location.href = 'client-portal.html';
-                    }
-                } catch (err) {
-                    window.location.href = 'client-portal.html';
-                }
+            if (email === 'aevixstudio961@gmail.com') {
+                window.location.replace('admin-portal.html');
+                return;
             }
 
             try {
-                const urlParams = new URLSearchParams(window.location.search);
-                const authCode = urlParams.get('code');
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', session.user.id)
+                    .maybeSingle();
 
-                if (authCode) {
-                    const { data, error } = await supabaseClient.auth.exchangeCodeForSession(authCode);
-                    clearTimeout(fallbackTimer);
-                    if (!error && data.session) {
-                        await processRouting(data.session);
-                        return;
-                    }
+                if (profile && (profile.role === 'admin' || profile.role === 'team')) {
+                    window.location.replace('admin-portal.html');
+                } else {
+                    window.location.replace('client-portal.html');
                 }
+            } catch (e) {
+                window.location.replace('client-portal.html');
+            }
+        }
 
-                const { data: { session } } = await supabaseClient.auth.getSession();
-                clearTimeout(fallbackTimer);
-                await processRouting(session);
+        async function init() {
+            // Force reveal UI after 2.5s if Supabase stalls
+            const fallback = setTimeout(showLoginUI, 2500);
+
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                clearTimeout(fallback);
+                await routeUser(session);
             } catch (err) {
-                console.error("Auth error:", err);
-                clearTimeout(fallbackTimer);
+                clearTimeout(fallback);
                 showLoginUI();
             }
+        }
 
-            supabaseClient.auth.onAuthStateChange(async (event, session) => {
-                if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-                    clearTimeout(fallbackTimer);
-                    await processRouting(session);
-                } else if (event === 'SIGNED_OUT') {
-                    clearTimeout(fallbackTimer);
-                    showLoginUI();
-                }
-            });
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'SIGNED_IN') {
+                await routeUser(session);
+            } else if (event === 'SIGNED_OUT') {
+                showLoginUI();
+            }
         });
+
+        init();
     </script>
 </body>
 </html>
