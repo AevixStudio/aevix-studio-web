@@ -30,22 +30,20 @@
             const titleEl = document.getElementById('status-title');
             const descEl = document.getElementById('status-desc');
 
-            // 1. Get Session
-            const { data: { session }, error } = await supabase.auth.getSession();
+            // Listen for authentication changes (handles hash parsing directly)
+            supabase.auth.onAuthStateChange(async (event, session) => {
+                if (session && session.user) {
+                    await routeUser(session.user);
+                } else if (event === 'SIGNED_OUT') {
+                    window.location.href = 'index.html';
+                }
+            });
 
-            if (error || !session) {
-                // Check if session event resolves hash
-                supabase.auth.onAuthStateChange(async (event, currentSession) => {
-                    if (currentSession) {
-                        await routeUser(currentSession.user);
-                    } else {
-                        window.location.href = 'index.html';
-                    }
-                });
-                return;
+            // Initial session check
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session && session.user) {
+                await routeUser(session.user);
             }
-
-            await routeUser(session.user);
         }
 
         async function routeUser(user) {
@@ -54,17 +52,32 @@
 
             titleEl.innerText = "Checking Permissions...";
             
-            // 2. Fetch User Profile & Role from database
-            const { data: profile, error } = await supabase
-                .from('profiles')
-                .select('role')
-                .eq('id', user.id)
-                .single();
+            let isAdmin = false;
 
-            // Direct fallback routing based on your admin email if table isn't updated yet
-            if (user.email === 'aevixstudio961@gmail.com' || (profile && profile.role === 'admin')) {
+            // Direct hardcoded check for admin email address
+            if (user.email === 'aevixstudio961@gmail.com') {
+                isAdmin = true;
+            } else {
+                // Safely attempt database lookup for other users
+                try {
+                    const { data: profile } = await supabase
+                        .from('profiles')
+                        .select('role')
+                        .eq('id', user.id)
+                        .maybeSingle();
+
+                    if (profile && profile.role === 'admin') {
+                        isAdmin = true;
+                    }
+                } catch (err) {
+                    console.warn('Profile table check failed, using fallback routing:', err);
+                }
+            }
+
+            // Perform redirection
+            if (isAdmin) {
                 titleEl.innerText = "Access Granted";
-                descEl.innerText = "Redirecting to Team Workspace...";
+                descEl.innerText = "Redirecting to Admin Workspace...";
                 window.location.href = 'admin-portal.html';
             } else {
                 titleEl.innerText = "Access Granted";
