@@ -24,25 +24,49 @@
         const SUPABASE_URL = 'https://bfabowxtvgknggpqnrpf.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmYWJvd3h0dmdrbmdncHFucnBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMTQwMDQsImV4cCI6MjEwMzU5MDAwNH0.zRuc9gF7qtihFHJJrUDXIwD1l0QJBBVHP_KasxJGMKM';
         
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Initialize client with explicit PKCE flow enabled
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: {
+                flowType: 'pkce',
+                autoRefreshToken: true,
+                persistSession: true,
+                detectSessionInUrl: true
+            }
+        });
 
-        async function handleAuthRouting() {
+        async function initAuth() {
             const titleEl = document.getElementById('status-title');
             const descEl = document.getElementById('status-desc');
 
-            // Listen for authentication changes (handles hash parsing directly)
-            supabase.auth.onAuthStateChange(async (event, session) => {
-                if (session && session.user) {
-                    await routeUser(session.user);
-                } else if (event === 'SIGNED_OUT') {
-                    window.location.href = 'index.html';
-                }
-            });
+            try {
+                // 1. Force check current session
+                const { data: { session }, error } = await supabase.auth.getSession();
 
-            // Initial session check
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session && session.user) {
-                await routeUser(session.user);
+                if (session && session.user) {
+                    return routeUser(session.user);
+                }
+
+                // 2. Backup listener for asynchronous token exchange
+                supabase.auth.onAuthStateChange(async (event, session) => {
+                    if (session && session.user) {
+                        await routeUser(session.user);
+                    } else if (event === 'SIGNED_OUT' || (!session && !window.location.href.includes('code='))) {
+                        window.location.href = 'index.html';
+                    }
+                });
+
+                // Fail-safe timeout if token processing fails completely
+                setTimeout(() => {
+                    if (titleEl.innerText === "Authenticating...") {
+                        titleEl.innerText = "Session Not Found";
+                        descEl.innerText = "Redirecting to main site...";
+                        setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+                    }
+                }, 4000);
+
+            } catch (err) {
+                console.error("Auth routing error:", err);
+                window.location.href = 'index.html';
             }
         }
 
@@ -50,43 +74,37 @@
             const titleEl = document.getElementById('status-title');
             const descEl = document.getElementById('status-desc');
 
-            titleEl.innerText = "Checking Permissions...";
-            
-            let isAdmin = false;
+            titleEl.innerText = "Access Granted";
 
-            // Direct hardcoded check for admin email address
+            // Instant hardcoded check for primary admin account
             if (user.email === 'aevixstudio961@gmail.com') {
-                isAdmin = true;
-            } else {
-                // Safely attempt database lookup for other users
-                try {
-                    const { data: profile } = await supabase
-                        .from('profiles')
-                        .select('role')
-                        .eq('id', user.id)
-                        .maybeSingle();
-
-                    if (profile && profile.role === 'admin') {
-                        isAdmin = true;
-                    }
-                } catch (err) {
-                    console.warn('Profile table check failed, using fallback routing:', err);
-                }
-            }
-
-            // Perform redirection
-            if (isAdmin) {
-                titleEl.innerText = "Access Granted";
                 descEl.innerText = "Redirecting to Admin Workspace...";
                 window.location.href = 'admin-portal.html';
-            } else {
-                titleEl.innerText = "Access Granted";
+                return;
+            }
+
+            // Fallback check against database role for non-primary accounts
+            try {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', user.id)
+                    .maybeSingle();
+
+                if (profile && profile.role === 'admin') {
+                    descEl.innerText = "Redirecting to Admin Workspace...";
+                    window.location.href = 'admin-portal.html';
+                } else {
+                    descEl.innerText = "Redirecting to Client Dashboard...";
+                    window.location.href = 'client-portal.html';
+                }
+            } catch (err) {
                 descEl.innerText = "Redirecting to Client Dashboard...";
                 window.location.href = 'client-portal.html';
             }
         }
 
-        document.addEventListener('DOMContentLoaded', handleAuthRouting);
+        document.addEventListener('DOMContentLoaded', initAuth);
     </script>
 </body>
 </html>
