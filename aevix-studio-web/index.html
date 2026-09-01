@@ -148,20 +148,28 @@
 
         let supabaseClient = null;
 
-        // Safe Supabase Client Initializer
+        // Safe Supabase Client Initializer with PKCE Flow
         function getSupabase() {
             if (!supabaseClient) {
+                const config = {
+                    auth: {
+                        flowType: 'pkce',
+                        autoRefreshToken: true,
+                        persistSession: true,
+                        detectSessionInUrl: true
+                    }
+                };
                 if (window.supabase && typeof window.supabase.createClient === 'function') {
-                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, config);
                 } else if (typeof createClient === 'function') {
-                    supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, config);
                 }
             }
             return supabaseClient;
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // 1. Form Checkbox Enable Logic (Handles auto-fill & click)
+            // 1. Form Checkbox Enable Logic
             const termsCheckbox = document.getElementById('terms');
             const submitBtn = document.getElementById('submit-btn');
 
@@ -177,7 +185,7 @@
                 termsCheckbox.addEventListener('click', syncSubmitButtonState);
             }
 
-            // 2. Google OAuth Trigger
+            // 2. Google OAuth Trigger with PKCE Parameters
             const googleLoginBtn = document.getElementById('google-login-btn');
             if (googleLoginBtn) {
                 googleLoginBtn.addEventListener('click', async (e) => {
@@ -193,7 +201,11 @@
                         const { data, error } = await client.auth.signInWithOAuth({
                             provider: 'google',
                             options: {
-                                redirectTo: window.location.origin + '/portal.html'
+                                redirectTo: window.location.origin + '/portal.html',
+                                queryParams: {
+                                    access_type: 'offline',
+                                    prompt: 'consent'
+                                }
                             }
                         });
 
