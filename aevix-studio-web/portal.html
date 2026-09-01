@@ -124,28 +124,37 @@
         }
 
         async function initAuth() {
-            // Check for PKCE ?code= parameter manually in case hash parsing missed it
-            const urlParams = new URLSearchParams(window.location.search);
-            const authCode = urlParams.get('code');
+            // Safety timeout: If Supabase auth hangs, force the login button to show after 4 seconds
+            const fallbackTimer = setTimeout(() => {
+                if (loadingState.style.display !== 'none') {
+                    loadingState.style.display = 'none';
+                    loginState.style.display = 'block';
+                }
+            }, 4000);
 
-            if (authCode) {
-                try {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const authCode = urlParams.get('code');
+
+                if (authCode) {
                     const { data, error } = await supabase.auth.exchangeCodeForSession(authCode);
                     if (!error && data.session) {
+                        clearTimeout(fallbackTimer);
                         await processRouting(data.session);
                         return;
                     }
-                } catch (e) {
-                    console.error("Code exchange exception:", e);
                 }
-            }
 
-            // Standard session check
-            const { data: { session } } = await supabase.auth.getSession();
-            await processRouting(session);
+                const { data: { session } } = await supabase.auth.getSession();
+                clearTimeout(fallbackTimer);
+                await processRouting(session);
+            } catch (err) {
+                clearTimeout(fallbackTimer);
+                loadingState.style.display = 'none';
+                loginState.style.display = 'block';
+            }
         }
 
-        // Auth state listener for sign-in returns
         supabase.auth.onAuthStateChange(async (event, session) => {
             if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
                 await processRouting(session);
@@ -155,7 +164,6 @@
             }
         });
 
-        // Run on page load
         initAuth();
     </script>
 </body>
