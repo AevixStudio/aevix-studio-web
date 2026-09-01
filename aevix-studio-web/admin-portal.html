@@ -105,17 +105,24 @@
     </section>
 
     <script>
-        // Pre-configured Supabase Connection
         const SUPABASE_URL = 'https://bfabowxtvgknggpqnrpf.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_T4yK_0Sj-cBm38Xq7gK_7w_lpDlolKN';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmYWJvd3h0dmdrbmdncHFucnBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMTQwMDQsImV4cCI6MjEwMzU5MDAwNH0.zRuc9gF7qtihFHJJrUDXIwD1l0QJBBVHP_KasxJGMKM';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: {
+                flowType: 'pkce',
+                autoRefreshToken: true,
+                persistSession: true,
+                detectSessionInUrl: true
+            }
+        });
 
         const workspaceContent = document.getElementById('workspace-content');
         const logoutBtn = document.getElementById('logout-btn');
 
         logoutBtn.addEventListener('click', async () => {
             await supabase.auth.signOut();
-            window.location.reload();
+            window.location.href = 'index.html';
         });
 
         supabase.auth.onAuthStateChange(async (event, session) => {
@@ -125,12 +132,19 @@
                 return;
             }
 
-            // Verify user role in profiles table
+            // Primary admin email bypass check
+            if (session.user.email === 'aevixstudio961@gmail.com') {
+                logoutBtn.style.display = 'inline-block';
+                fetchAllProjects();
+                return;
+            }
+
+            // Database role check for non-primary accounts
             const { data: profile, error } = await supabase
                 .from('profiles')
                 .select('role')
                 .eq('id', session.user.id)
-                .single();
+                .maybeSingle();
 
             if (error || !profile || !['admin', 'team'].includes(profile.role)) {
                 renderAccessDenied(`Access Denied: Account (${session.user.email}) does not have administrative permissions.`);
@@ -143,4 +157,24 @@
 
         function renderAccessDenied(message) {
             workspaceContent.innerHTML = `
-                <div style="text-align: center; padding: 4rem 2rem; background: #111827; border: 1px solid #1f2
+                <div style="text-align: center; padding: 4rem 2rem; background: #111827; border: 1px solid #1f2937; border-radius: 12px;">
+                    <h3 style="color: #ef4444; margin-top: 0;">Restricted Access</h3>
+                    <p style="color: #9ca3af; margin-bottom: 1.5rem;">${message}</p>
+                    <a href="index.html" style="color: #60a5fa; text-decoration: underline;">Return to Main Site</a>
+                </div>
+            `;
+        }
+
+        async function fetchAllProjects() {
+            workspaceContent.innerHTML = `
+                <div class="admin-table-container">
+                    <div style="padding: 2rem; text-align: center; color: #9ca3af;">
+                        Loading project management dashboard...
+                    </div>
+                </div>
+            `;
+            // Add custom data fetching methods here
+        }
+    </script>
+</body>
+</html>
