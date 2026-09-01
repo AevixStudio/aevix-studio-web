@@ -46,6 +46,12 @@
             font-size: 0.9rem;
             margin-top: 1rem;
         }
+        .error-msg {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            display: none;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -59,9 +65,10 @@
             <p class="status-msg">Verifying session credentials and securing routing...</p>
         </div>
 
-        <div id="login-state" style="display: block;">
+        <div id="login-state">
             <p style="color: #d1d5db; margin-bottom: 0.5rem;">Sign in to access your dashboard</p>
             <button class="btn-google" id="google-btn">Sign In with Google</button>
+            <p class="error-msg" id="error-box"></p>
         </div>
     </div>
 
@@ -69,56 +76,57 @@
         const SUPABASE_URL = 'https://bfabowxtvgknggpqnrpf.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmYWJvd3h0dmdrbmdncHFucnBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMTQwMDQsImV4cCI6MjEwMzU5MDAwNH0.zRuc9gF7qtihFHJJrUDXIwD1l0QJBBVHP_KasxJGMKM';
 
-        let supabase;
-        if (window.supabase && window.supabase.createClient) {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-                auth: {
-                    flowType: 'pkce',
-                    autoRefreshToken: true,
-                    persistSession: true,
-                    detectSessionInUrl: true
-                }
-            });
-        }
+        const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
         const loadingState = document.getElementById('loading-state');
         const loginState = document.getElementById('login-state');
         const googleBtn = document.getElementById('google-btn');
+        const errorBox = document.getElementById('error-box');
 
-        function showLoading() {
-            loadingState.style.display = 'block';
-            loginState.style.display = 'none';
-        }
-
-        function showLogin() {
+        function showError(msg) {
             loadingState.style.display = 'none';
             loginState.style.display = 'block';
+            errorBox.style.display = 'block';
+            errorBox.textContent = msg;
         }
 
         googleBtn.addEventListener('click', async () => {
-            if (!supabase) return;
-            showLoading();
-            const redirectUrl = window.location.origin + window.location.pathname;
-            await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: { redirectTo: redirectUrl }
-            });
+            if (!supabase) {
+                showError('Supabase client failed to load.');
+                return;
+            }
+
+            try {
+                const { error } = await supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: window.location.origin + window.location.pathname
+                    }
+                });
+
+                if (error) {
+                    showError('Google Auth Error: ' + error.message);
+                }
+            } catch (err) {
+                showError('Unexpected connection error.');
+            }
         });
 
-        async function routeUser(session) {
-            if (!session) {
-                showLogin();
-                return;
-            }
+        async function handleRouting(session) {
+            if (!session) return;
 
-            showLoading();
+            loadingState.style.display = 'block';
+            loginState.style.display = 'none';
+
             const email = session.user?.email?.toLowerCase() || '';
 
+            // 1. Direct Hardcoded Super-Admin Email Override
             if (email === 'aevixstudio961@gmail.com') {
-                window.location.replace('admin-portal.html');
+                window.location.href = '/admin-portal.html';
                 return;
             }
 
+            // 2. Database Role Lookup
             try {
                 const { data: profile } = await supabase
                     .from('profiles')
@@ -127,39 +135,26 @@
                     .maybeSingle();
 
                 if (profile && (profile.role === 'admin' || profile.role === 'team')) {
-                    window.location.replace('admin-portal.html');
+                    window.location.href = '/admin-portal.html';
                 } else {
-                    window.location.replace('client-portal.html');
+                    window.location.href = '/client-portal.html';
                 }
-            } catch (e) {
-                window.location.replace('client-portal.html');
+            } catch (err) {
+                window.location.href = '/client-portal.html';
             }
         }
 
         async function init() {
-            if (!supabase) {
-                showLogin();
-                return;
+            if (!supabase) return;
+
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                await handleRouting(session);
             }
 
-            try {
-                const { data: { session } } = await supabase.auth.getSession();
-                if (session) {
-                    await routeUser(session);
-                } else {
-                    showLogin();
-                }
-            } catch (err) {
-                showLogin();
-            }
-        }
-
-        if (supabase) {
             supabase.auth.onAuthStateChange(async (event, session) => {
-                if (event === 'SIGNED_IN') {
-                    await routeUser(session);
-                } else if (event === 'SIGNED_OUT') {
-                    showLogin();
+                if (event === 'SIGNED_IN' && session) {
+                    await handleRouting(session);
                 }
             });
         }
