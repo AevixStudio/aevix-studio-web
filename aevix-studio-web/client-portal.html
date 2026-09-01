@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Client Portal | Aevix Studio</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Supabase JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         .portal-container {
@@ -125,17 +124,24 @@
     </div>
 
     <script>
-        // Pre-configured Supabase Connection
         const SUPABASE_URL = 'https://bfabowxtvgknggpqnrpf.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_T4yK_0Sj-cBm38Xq7gK_7w_lpDlolKN';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmYWJvd3h0dmdrbmdncHFucnBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMTQwMDQsImV4cCI6MjEwMzU5MDAwNH0.zRuc9gF7qtihFHJJrUDXIwD1l0QJBBVHP_KasxJGMKM';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: {
+                flowType: 'pkce',
+                autoRefreshToken: true,
+                persistSession: true,
+                detectSessionInUrl: true
+            }
+        });
 
         const portalContent = document.getElementById('portal-content');
         const logoutBtn = document.getElementById('logout-btn');
 
         logoutBtn.addEventListener('click', async () => {
             await supabase.auth.signOut();
-            window.location.reload();
+            window.location.href = 'index.html';
         });
 
         // Auth state observer
@@ -154,7 +160,7 @@
                 <div class="card" style="text-align: center; padding: 3rem 1.5rem;">
                     <h3 style="margin-bottom: 0.5rem;">Access Your Project Dashboard</h3>
                     <p style="color: #9ca3af; margin-bottom: 1.5rem;">Sign in with your registered Google account to view progress and timeline logs.</p>
-                    <button onclick="supabase.auth.signInWithOAuth({ provider: 'google' })" class="action-btn">Sign In with Google</button>
+                    <button onclick="supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + '/portal.html' } })" class="action-btn">Sign In with Google</button>
                 </div>
             `;
         }
