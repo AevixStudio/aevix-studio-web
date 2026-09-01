@@ -39,23 +39,33 @@
             const descEl = document.getElementById('status-desc');
 
             try {
-                // 1. Force check current session
-                const { data: { session }, error } = await supabase.auth.getSession();
+                // 1. Explicitly exchange authorization code if present in URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const authCode = urlParams.get('code');
 
+                if (authCode) {
+                    const { data, error } = await supabase.auth.exchangeCodeForSession(authCode);
+                    if (data?.session?.user) {
+                        return routeUser(data.session.user);
+                    }
+                }
+
+                // 2. Check current active session
+                const { data: { session } } = await supabase.auth.getSession();
                 if (session && session.user) {
                     return routeUser(session.user);
                 }
 
-                // 2. Backup listener for asynchronous token exchange
+                // 3. Backup listener for asynchronous auth changes
                 supabase.auth.onAuthStateChange(async (event, session) => {
                     if (session && session.user) {
                         await routeUser(session.user);
-                    } else if (event === 'SIGNED_OUT' || (!session && !window.location.href.includes('code='))) {
+                    } else if (event === 'SIGNED_OUT' || (!session && !window.location.search.includes('code='))) {
                         window.location.href = 'index.html';
                     }
                 });
 
-                // Fail-safe timeout if token processing fails completely
+                // Fail-safe timeout if token processing stalls
                 setTimeout(() => {
                     if (titleEl.innerText === "Authenticating...") {
                         titleEl.innerText = "Session Not Found";
@@ -76,14 +86,14 @@
 
             titleEl.innerText = "Access Granted";
 
-            // Instant hardcoded check for primary admin account
+            // Instant check for primary admin account
             if (user.email === 'aevixstudio961@gmail.com') {
                 descEl.innerText = "Redirecting to Admin Workspace...";
                 window.location.href = 'admin-portal.html';
                 return;
             }
 
-            // Fallback check against database role for non-primary accounts
+            // Fallback check against database role
             try {
                 const { data: profile } = await supabase
                     .from('profiles')
