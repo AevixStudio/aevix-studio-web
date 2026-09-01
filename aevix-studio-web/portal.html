@@ -90,39 +90,45 @@
             errorBox.textContent = msg;
         }
 
+        function showLoading() {
+            loadingState.style.display = 'block';
+            loginState.style.display = 'none';
+        }
+
+        // Attach click listener
         googleBtn.addEventListener('click', async () => {
             if (!supabase) {
-                showError('Supabase client failed to load.');
+                showError('Supabase JS failed to load.');
                 return;
             }
 
+            showLoading();
+
             try {
+                // Point redirectTo directly to the portal page
+                const targetRedirect = window.location.origin + window.location.pathname;
                 const { error } = await supabase.auth.signInWithOAuth({
                     provider: 'google',
-                    options: {
-                        redirectTo: window.location.origin + window.location.pathname
-                    }
+                    options: { redirectTo: targetRedirect }
                 });
 
                 if (error) {
-                    showError('Google Auth Error: ' + error.message);
+                    showError('Auth Error: ' + error.message);
                 }
             } catch (err) {
-                showError('Unexpected connection error.');
+                showError('Connection error during Google Sign-In.');
             }
         });
 
-        async function handleRouting(session) {
+        async function routeUser(session) {
             if (!session) return;
 
-            loadingState.style.display = 'block';
-            loginState.style.display = 'none';
-
+            showLoading();
             const email = session.user?.email?.toLowerCase() || '';
 
-            // 1. Direct Hardcoded Super-Admin Email Override
+            // 1. Direct Hardcoded Admin Check
             if (email === 'aevixstudio961@gmail.com') {
-                window.location.href = '/admin-portal.html';
+                window.location.replace('admin-portal.html');
                 return;
             }
 
@@ -135,26 +141,28 @@
                     .maybeSingle();
 
                 if (profile && (profile.role === 'admin' || profile.role === 'team')) {
-                    window.location.href = '/admin-portal.html';
+                    window.location.replace('admin-portal.html');
                 } else {
-                    window.location.href = '/client-portal.html';
+                    window.location.replace('client-portal.html');
                 }
             } catch (err) {
-                window.location.href = '/client-portal.html';
+                window.location.replace('client-portal.html');
             }
         }
 
         async function init() {
             if (!supabase) return;
 
+            // Check if already logged in
             const { data: { session } } = await supabase.auth.getSession();
             if (session) {
-                await handleRouting(session);
+                await routeUser(session);
             }
 
+            // Listen for auth state change (after OAuth callback)
             supabase.auth.onAuthStateChange(async (event, session) => {
-                if (event === 'SIGNED_IN' && session) {
-                    await handleRouting(session);
+                if (session) {
+                    await routeUser(session);
                 }
             });
         }
